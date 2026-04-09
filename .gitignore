@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Environment variables (never push secrets)
+.env
+
+# Builds
+client/build/
+dist/
+
+# Logs
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

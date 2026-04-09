@@ -1,0 +1,52 @@
+# docker-compose.yml
+# Starts all 3 services with a single command: docker-compose up
+
+version: "3.8"
+
+services:
+
+  # --- PostgreSQL Database ---
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: codequest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password_here
+    ports:
+      - "5432:5432"
+    volumes:
+      # Loads the SQL schema on first launch
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Keeps data even if the container is deleted
+      - pgdata:/var/lib/postgresql/data
+
+  # --- Express.js Backend ---
+  server:
+    build: ./server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: codequest
+      DB_USER: postgres
+      DB_PASSWORD: your_password_here
+      JWT_SECRET: your_secret_key_here
+      NODE_ENV: development
+    depends_on:
+      - db
+
+  # --- React Frontend ---
+  client:
+    build: ./client
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+# Volume to persist PostgreSQL data
+volumes:
+  pgdata:
