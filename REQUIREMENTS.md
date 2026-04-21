@@ -126,7 +126,7 @@ The diagram below summarizes the interactions between the four actors and the Co
 
 Mermaid does not natively support UML use case diagrams, so the flowchart below approximates one — actors are shown as rectangles on the edges, use cases as stadium-shaped nodes inside the system boundary.
 
-![alt text](usecase.png)
+![alt text](photo/usecase.png)
 
 ---
 
@@ -134,7 +134,7 @@ Mermaid does not natively support UML use case diagrams, so the flowchart below 
 
 The model is built around an abstract `User` class from which `Student`, `Teacher`, and `Admin` inherit. Each entity below corresponds to a dedicated table in the PostgreSQL schema, with the exception of `ClassStudent` and `Assignment` which materialize many-to-many relationships.
 
-![alt text](classdiagram.png)
+![alt text](photo/classdiagram.png)
 
 ### 6.1 Key relationships
 
