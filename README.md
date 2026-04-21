@@ -20,7 +20,6 @@ A web platform where French high school students learn programming by playing a 
     - [Setup](#setup)
   - [Environment variables](#environment-variables)
   - [Usage](#usage)
-  - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [License](#license)
   - [Author](#author)
@@ -191,19 +190,6 @@ Once running:
 
 ---
 
-## Roadmap
-
-- [x] Project structure and repo setup
-- [ ] Database schema
-- [ ] Auth system (register, login, JWT)
-- [ ] Student, teacher, and admin dashboards
-- [ ] Phaser game world (map, knight, movement)
-- [ ] Blockly integration (block editor)
-- [ ] Quest system with boss fights
-- [ ] Teacher progress tracking
-- [ ] Deploy to Vercel / Render
-
----
 
 ## Contributing
 
