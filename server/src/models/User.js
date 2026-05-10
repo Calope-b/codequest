@@ -12,6 +12,15 @@ async function findByEmail(email) {
     return rows[0] || null;
 }
 
+async function findById(id) {
+  // No password_hash here on purpose: this is meant to be returned to clients.
+  const {rows} = await db.query(
+    'SELECT id, email, role FROM users WHERE id = $1',
+    [id]
+  );
+  return rows[0] || null;
+}
+
 async function create({ email, passwordHash, role }) {
   const { rows } = await db.query(
     `INSERT INTO users (email, password_hash, role)
@@ -22,4 +31,4 @@ async function create({ email, passwordHash, role }) {
   return rows[0];
 }
 
-module.exports = {  findByEmail, create };
+module.exports = {  findByEmail, findById, create };
