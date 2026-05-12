@@ -25,6 +25,4 @@ router.get('/me', verifyToken, async (req, res) => {
     return res.status(200).json({ user });
 });
 
-
-
 module.exports = router;
