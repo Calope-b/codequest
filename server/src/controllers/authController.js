@@ -123,7 +123,7 @@ async function login(req, res) {
         // is wrong, to prevent account enumeration.
         const user = await User.findByEmail(email);
         if (!user) {
-return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         const passwordOk = await bcrypt.compare(password, user.password_hash);
