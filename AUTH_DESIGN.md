@@ -18,6 +18,7 @@ A few decisions up front, leaning toward simplicity. This is a school project on
 |---|---|---|---|
 | POST | `/api/auth/register` | Public | Create a student or teacher account |
 | POST | `/api/auth/login` | Public | Authenticate and get a JWT |
+| GET | `/api/auth/me` | Bearer JWT | Return the currently logged-in user; used by the client to restore a session after a refresh |
 | `*` | `/api/...` | Bearer JWT | Anything else, gated by `verifyToken` (and possibly `requireRole`) |
 
 ---
@@ -40,15 +41,13 @@ sequenceDiagram
         C-->>U: Show field errors
     end
 
-    S->>DB: SELECT id FROM users WHERE email = $1
-    DB-->>S: result
-    alt Email already used
+    S->>S: bcrypt.hash(password, 12)
+    S->>DB: INSERT INTO users (email, password_hash, role)
+    alt Email already used (Postgres error 23505)
+        DB-->>S: unique_violation
         S-->>C: 409 Conflict
         C-->>U: "Email already registered"
     end
-
-    S->>S: bcrypt.hash(password, 12)
-    S->>DB: INSERT INTO users (email, password_hash, role)
     DB-->>S: user.id
 
     S->>S: jwt.sign({ id, role }, secret, expiresIn: 24h)
@@ -132,6 +131,20 @@ sequenceDiagram
     H-->>C: 200 OK { data }
     C-->>U: Render progress view
 ```
+
+---
+
+## Input hardening
+
+Beyond the validation shown in the registration diagram, both endpoints apply the following protections, all enforced before any database call:
+
+- **Strict type checking.** Each field must be a string; numbers, arrays, null, and missing fields all return 400 instead of crashing on `.length` or `.trim()`.
+- **Email normalization.** Email is trimmed and lowercased on both register and login, so `Alice@X.com` and `alice@x.com` resolve to the same account.
+- **Length bounds.** Email capped at 254 characters (RFC 3696). Password capped at 72 characters because bcrypt silently truncates beyond that; rejecting longer passwords explicitly is clearer than letting them be partly ignored.
+- **Whitespace-only password rejection.** A password of `"        "` (8 spaces) passes the minimum length check but is rejected as a separate case.
+- **Race-condition-safe duplicate detection.** Instead of `SELECT-then-INSERT`, the controller relies on the `UNIQUE` constraint on `users.email` and catches the Postgres `23505` error on insert. Under concurrent registrations, only one wins; the others get a clean 409.
+
+Both controllers are also wrapped in `try/catch` to convert any unexpected async error into a 500 response, since Express 4 doesn't propagate async rejections to the global error handler by default.
 
 ---
 

@@ -155,16 +155,3 @@ Two attack surfaces are acknowledged but not mitigated in this version. The firs
 
 The second is brute force on `login`, which would need rate limiting at the route or IP level. Neither is in this version and neither is planned for the MVP.
 
-## 7. Implementation plan 
-
-#### Order of work once this plan is approved:
-
-1. Set up the `codequest_test` database and the `.env.test` file (one-time setup).
-2. Add a Jest helper that truncates `users` between tests.
-3. Write `register.test.js` for TC-REG-*.
-4. Write `login.test.js` for TC-LOG-*.
-5. Write `middlewares.test.js` for TC-VTK-* and TC-RRO-*.
-6. Write `me.test.js` for TC-ME-*.
-7. Wire `npm test` into the existing GitHub Actions pipeline so every push runs the suite.
-
-The status column in every table moves each case through `planned` to `implemented` to `passing` as work progresses.
