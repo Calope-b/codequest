@@ -3,6 +3,7 @@ node_modules/
 
 # Environment variables (never push secrets)
 .env
+.env.test
 
 # Builds
 client/build/
