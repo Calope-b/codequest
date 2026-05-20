@@ -1,0 +1,63 @@
+# .github/workflows/ci.yml
+# Runs the backend test suite on every push and pull request.
+# Spins up a temporary Postgres service, applies the schema, then runs Jest.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+
+    # Sidecar Postgres container, available at localhost:5432 inside this job
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: codequest_test
+        ports:
+          - 5432:5432
+        # GitHub waits for Postgres to be ready before starting the job
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Apply database schema
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d codequest_test -f database/schema.sql
+
+      - name: Run Jest test suite
+        working-directory: server
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: codequest_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          JWT_SECRET: ci-test-secret-not-for-production
+        run: npm test
