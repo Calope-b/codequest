@@ -1,0 +1,20 @@
+{
+  "id": "quest_001",
+  "title": "First steps",
+  "description": "Navigate to the chest.",
+  "map": "tutorial_1",
+  "startPosition": { "x": 1, "y": 1, "facing": "right" },
+  "goal": { "type": "reach", "x": 10, "y": 6 },
+  "allowedBlocks": ["move_forward", "turn_left", "turn_right"],
+  "expectedSolution": { "minBlocks": 12 },
+  "walls": [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ]
+}
