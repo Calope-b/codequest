@@ -1,0 +1,117 @@
+/* Full page: center the card both vertically and horizontally */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: #0f1320;
+}
+
+/* The form card itself */
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: #1a2033;
+  border: 1px solid #2a3147;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.login-title {
+  margin: 0;
+  text-align: center;
+  font-size: 2rem;
+  color: #f0c674;
+  letter-spacing: 0.05em;
+}
+
+.login-subtitle {
+  margin: 0.25rem 0 1.5rem;
+  text-align: center;
+  color: #8a93a8;
+  font-size: 0.9rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Each label wraps its text AND its input so clicking the text focuses
+   the field (accessibility). */
+.login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #c7cde0;
+  font-size: 0.9rem;
+}
+
+.login-label input {
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #2a3147;
+  background: #0f1320;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.login-label input:focus {
+  border-color: #f0c674;
+}
+
+.login-label input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-error {
+  color: #ff8a8a;
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.login-button {
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  background: #f0c674;
+  color: #0f1320;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #f5d28a;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  color: #8a93a8;
+  font-size: 0.9rem;
+}
+
+.login-footer a {
+  color: #f0c674;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
