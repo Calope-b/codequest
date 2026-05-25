@@ -1,0 +1,143 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: #0f1320;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 400px;
+  background: #1a2033;
+  border: 1px solid #2a3147;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.register-title {
+  margin: 0;
+  text-align: center;
+  font-size: 2rem;
+  color: #f0c674;
+  letter-spacing: 0.05em;
+}
+
+.register-subtitle {
+  margin: 0.25rem 0 1.5rem;
+  text-align: center;
+  color: #8a93a8;
+  font-size: 0.9rem;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.register-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #c7cde0;
+  font-size: 0.9rem;
+}
+
+.register-label input {
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #2a3147;
+  background: #0f1320;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.register-label input:focus {
+  border-color: #f0c674;
+}
+
+.register-label input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Role selector block */
+.register-fieldset {
+  border: 1px solid #2a3147;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  color: #c7cde0;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.register-fieldset legend {
+  padding: 0 0.4rem;
+  font-size: 0.85rem;
+  color: #8a93a8;
+}
+
+.register-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.register-radio input {
+  accent-color: #f0c674;
+  cursor: pointer;
+}
+
+.register-error {
+  color: #ff8a8a;
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.register-button {
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  background: #f0c674;
+  color: #0f1320;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.register-button:hover:not(:disabled) {
+  background: #f5d28a;
+}
+
+.register-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-footer {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  color: #8a93a8;
+  font-size: 0.9rem;
+}
+
+.register-footer a {
+  color: #f0c674;
+  text-decoration: none;
+}
+
+.register-footer a:hover {
+  text-decoration: underline;
+}
