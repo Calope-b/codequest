@@ -18,7 +18,8 @@ class QuestScene extends Phaser.Scene {
   // We use it to grab the quest definition before create() runs.
   init(data) {
     this.quest = data.quest
-    this.onQuestComplete = data.onQuestComplete  // callback into React
+    this.onQuestComplete = data.onQuestComplete
+    this.onQuestReset = data.onQuestReset
   }
 
   create() {
@@ -58,6 +59,7 @@ class QuestScene extends Phaser.Scene {
       facing,
       walls: this.quest.walls,
       goal: { x: this.quest.goal.x, y: this.quest.goal.y },
+      onGoalReached: () => this.onQuestComplete?.(),
     })
 
     this.questComplete = false
@@ -95,7 +97,6 @@ class QuestScene extends Phaser.Scene {
     this.isBusy = true
     try {
       await actionFn()
-      this.checkQuestComplete()
     } finally {
       this.isBusy = false
     }
@@ -109,6 +110,14 @@ class QuestScene extends Phaser.Scene {
 
     this.questComplete = true
     this.onQuestComplete?.()
+  }
+
+  // Resets the scene to its initial state: knight back to start, and the
+  // quest-complete flag re-armed so the win can trigger again. Called by
+  // the React Reset button via the scene reference.
+  resetQuest() {
+    this.knight.reset()
+    this.onQuestReset?.()
   }
 
   // ----- Drawing helpers -----

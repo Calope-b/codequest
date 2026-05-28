@@ -36,6 +36,7 @@ function StudentDashboard() {
     gameRef.current.scene.add('QuestScene', QuestScene, true, {
       quest,
       onQuestComplete: () => setQuestComplete(true),
+      onQuestReset: () => setQuestComplete(false),
     })
 
     return () => {
@@ -60,8 +61,6 @@ function StudentDashboard() {
       return
     }
 
-    // Grab the live KnightController from the running scene. QuestScene
-    // stores it on itself; we also exposed it on window during dev.
     const scene = gameRef.current?.scene.getScene('QuestScene')
     const knight = scene?.knight
     if (!knight) {
@@ -69,16 +68,27 @@ function StudentDashboard() {
       return
     }
 
+    // Auto-reset before each run so the program always starts from the
+    // quest's initial state. The manual Reset button stays available for
+    // resetting without launching a program.
+    scene.resetQuest()
+
     setRunning(true)
     try {
       await runWorkspace(workspace, knight)
     } catch (err) {
-      // Surface generation/runtime errors so the student (and you) can
-      // see what went wrong instead of a silent console-only failure.
       setRunError(err.message || 'Something went wrong while running.')
     } finally {
       setRunning(false)
     }
+  }
+  // Resets the knight to its starting position so the student can run a
+  // new program from scratch. Disabled while a program is running to
+  // avoid resetting mid-execution.
+  function handleReset() {
+    setRunError('')
+    const scene = gameRef.current?.scene.getScene('QuestScene')
+    scene?.resetQuest()
   }
 
 
@@ -100,28 +110,44 @@ function StudentDashboard() {
         move the knight for now. The "Run" button comes next.
       </p>
 
-      <div style={{ marginTop: '1rem' }}>
-        <button
-          onClick={handleRun}
-          disabled={running}
-          style={{
-            padding: '0.6rem 1.5rem',
-            borderRadius: '6px',
-            border: 'none',
-            background: running ? '#5a6b8a' : '#6abf69',
-            color: '#0f1320',
-            fontSize: '1rem',
-            fontWeight: 600,
-            cursor: running ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {running ? 'Running...' : '▶ Run'}
-        </button>
+      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
 
-        {runError && (
-          <span style={{ marginLeft: '1rem', color: '#ff8a8a' }}>{runError}</span>
-        )}
-      </div>
+      <button
+        onClick={handleRun}
+        disabled={running}
+        style={{
+          padding: '0.6rem 1.5rem',
+          borderRadius: '6px',
+          border: 'none',
+          background: running ? '#5a6b8a' : '#6abf69',
+          color: '#0f1320',
+          fontSize: '1rem',
+          fontWeight: 600,
+          cursor: running ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {running ? 'Running...' : '▶ Run'}
+      </button>
+
+      <button
+        onClick={handleReset}
+        disabled={running}
+        style={{
+          padding: '0.6rem 1.5rem',
+          borderRadius: '6px',
+          border: '1px solid #2a3147',
+          background: 'transparent',
+          color: running ? '#5a6b8a' : '#c7cde0',
+          fontSize: '1rem',
+          fontWeight: 600,
+          cursor: running ? 'not-allowed' : 'pointer',
+        }}
+      >
+        ↺ Reset
+      </button>
+
+      {runError && <span style={{ color: '#ff8a8a' }}>{runError}</span>}
+    </div>
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
         <BlocklyEditor onWorkspaceReady={(ws) => { workspaceRef.current = ws }} />

@@ -50,7 +50,21 @@ class KnightController {
 
     this.walls = options.walls || null
     this.goal = options.goal || null
+
+    // Remember the starting state so reset() can restore it after a run.
+    // We snapshot primitives (not references) so later moves don't mutate
+    // these saved values.
+    this.startState = {
+      cellX: options.startX,
+      cellY: options.startY,
+      facing: options.facing || 'right',
   }
+  // Callback fired once when the knight first reaches the goal cell.
+  // Lives on the controller so detection works no matter how the knight
+  // is driven (keyboard, console, or Blockly-generated code).
+  this.onGoalReached = options.onGoalReached || null
+  this.goalReached = false
+}
 
   // ----- Movement -----
 
@@ -78,7 +92,14 @@ class KnightController {
       this.cellToPixel(targetY),
       MOVE_DURATION_MS
     )
-  }
+
+    // Once the knight has arrived, check the goal. Fire the callback only
+    // the first time so it doesn't re-trigger if the knight stays put.
+    if (!this.goalReached && this.isAtGoal()) {
+      this.goalReached = true
+      this.onGoalReached?.()
+    }
+}
 
   /**
    * Rotates the knight 90 degrees counter-clockwise. Updates `facing`
@@ -115,6 +136,34 @@ class KnightController {
 
     await this.tweenSprite(jabX, jabY, ATTACK_DURATION_MS / 2)
     await this.tweenSprite(originX, originY, ATTACK_DURATION_MS / 2)
+  }
+
+  // ----- Lifecycle -----
+
+  /**
+   * Resets the knight to its starting cell and orientation, instantly
+   * (no tween). Used by the Reset button so a student can re-run a
+   * program from a clean state without reloading the page.
+   */
+  reset() {
+    this.cellX = this.startState.cellX
+    this.cellY = this.startState.cellY
+    this.facing = this.startState.facing
+
+    // Snap the sprite back to the start cell's pixel position.
+    this.sprite.x = this.cellToPixel(this.cellX)
+    this.sprite.y = this.cellToPixel(this.cellY)
+
+    // Restore the facing rotation to match.
+    this.sprite.rotation = {
+      right: 0,
+      down: Math.PI / 2,
+      left: Math.PI,
+      up: -Math.PI / 2,
+    }[this.facing]
+
+    // Re-arm goal detection so the quest can be won again after a reset.
+    this.goalReached = false
   }
 
   // ----- Sensors (synchronous) -----
