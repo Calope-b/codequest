@@ -51,6 +51,20 @@ class KnightController {
     this.walls = options.walls || null
     this.goal = options.goal || null
 
+    // Quest objective type. 'reach' means stand on the goal cell;
+    // 'defeat_all' means no enemy is left alive. Falls back to 'reach'
+    // when only a goal cell is passed, so old quests still work.
+    this.goalType = options.goalType || (this.goal ? 'reach' : null)
+
+    // Static, one-shot goblins for Phase 3. We copy each enemy into our
+    // own object with an `alive` flag, so defeating one mutates our copy
+    // and never the shared quest JSON (which reset() needs intact).
+    this.enemies = (options.enemies || []).map((e) => ({
+      x: e.x,
+      y: e.y,
+      alive: true,
+    }))
+
     // Remember the starting state so reset() can restore it after a run.
     // We snapshot primitives (not references) so later moves don't mutate
     // these saved values.
@@ -59,11 +73,13 @@ class KnightController {
       cellY: options.startY,
       facing: options.facing || 'right',
   }
-  // Callback fired once when the knight first reaches the goal cell.
-  // Lives on the controller so detection works no matter how the knight
-  // is driven (keyboard, console, or Blockly-generated code).
+
   this.onGoalReached = options.onGoalReached || null
   this.goalReached = false
+
+  // Fired each time an enemy is defeated so the scene can hide its
+  // sprite. The scene owns the sprites; the controller owns the state.
+  this.onEnemyDefeated = options.onEnemyDefeated || null
 }
 
   // ----- Movement -----
@@ -93,12 +109,7 @@ class KnightController {
       MOVE_DURATION_MS
     )
 
-    // Once the knight has arrived, check the goal. Fire the callback only
-    // the first time so it doesn't re-trigger if the knight stays put.
-    if (!this.goalReached && this.isAtGoal()) {
-      this.goalReached = true
-      this.onGoalReached?.()
-    }
+    this.checkComplete()
 }
 
   /**
@@ -129,6 +140,8 @@ class KnightController {
    */
   async attack() {
     const { dx, dy } = DIRECTION_VECTORS[this.facing]
+    const target = this.enemyAt(this.cellX + dx, this.cellY + dy)
+
     const originX = this.cellToPixel(this.cellX)
     const originY = this.cellToPixel(this.cellY)
     const jabX = originX + dx * (TILE_SIZE * 0.3)
@@ -136,6 +149,13 @@ class KnightController {
 
     await this.tweenSprite(jabX, jabY, ATTACK_DURATION_MS / 2)
     await this.tweenSprite(originX, originY, ATTACK_DURATION_MS / 2)
+
+    // One hit is enough in Phase 3: the goblin dies and does not retaliate.
+    if (target) {
+      target.alive = false
+      this.onEnemyDefeated?.(target)
+      this.checkComplete()
+    }
   }
 
   // ----- Lifecycle -----
@@ -162,6 +182,14 @@ class KnightController {
       up: -Math.PI / 2,
     }[this.facing]
 
+    // Bring every defeated enemy back so the quest can be replayed.
+    this.enemies.forEach((e) => {
+      e.alive = true
+    })
+
+    // Re-arm goal detection so the quest can be won again after a reset.
+    this.goalReached = false
+
     // Re-arm goal detection so the quest can be won again after a reset.
     this.goalReached = false
   }
@@ -180,11 +208,10 @@ class KnightController {
 
   /**
    * Returns true if an enemy sits in the cell directly ahead.
-   * Stubbed in Phase 3.3 (no enemies yet); will read from the scene's
-   * enemy list once enemies are introduced in sprint 3.4.
    */
   isEnemyAhead() {
-    return false
+    const { dx, dy } = DIRECTION_VECTORS[this.facing]
+    return this.enemyAt(this.cellX + dx, this.cellY + dy) !== null
   }
 
   /**
@@ -196,6 +223,32 @@ class KnightController {
     return this.cellX === this.goal.x && this.cellY === this.goal.y
   }
 
+  // Returns the live enemy occupying (x, y), or null. Defeated enemies
+  // are ignored so their cell becomes walkable again.
+  enemyAt(x, y) {
+    return this.enemies.find((e) => e.alive && e.x === x && e.y === y) || null
+  }
+
+  // True when the quest objective is satisfied. 'defeat_all' needs every
+  // enemy dead; anything else falls back to the reach-the-goal rule.
+  isQuestComplete() {
+    if (this.goalType === 'defeat_all') {
+      return this.enemies.length > 0 && this.enemies.every((e) => !e.alive)
+    }
+    return this.isAtGoal()
+  }
+
+  // Fires the completion callback once, the first time the objective is
+  // met. Called after any action that could win the quest: a move onto
+  // the goal, or the final kill.
+  checkComplete() {
+    if (this.goalReached) return
+    if (this.isQuestComplete()) {
+      this.goalReached = true
+      this.onGoalReached?.()
+    }
+  }
+
   // ----- Internals -----
 
   // Returns true if (x, y) is on-grid and not a wall.
@@ -203,6 +256,8 @@ class KnightController {
     if (x < 0 || x >= GRID_WIDTH) return false
     if (y < 0 || y >= GRID_HEIGHT) return false
     if (this.walls && this.walls[y] && this.walls[y][x] === 1) return false
+    // A living enemy blocks its cell: the knight must defeat it first.
+    if (this.enemyAt(x, y)) return false
     return true
   }
 
