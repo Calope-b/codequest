@@ -3,9 +3,11 @@
 // quests from /api/quests instead and this module is where that
 // switch will happen.
 import quest001 from '../quests/quest_001.json'
+import quest002 from '../quests/quest_002.json'
 
 const QUESTS = {
   quest_001: quest001,
+  quest_002: quest002,
 }
 
 /**

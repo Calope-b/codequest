@@ -27,6 +27,7 @@ function StudentDashboard() {
 
   useEffect(() => {
     const quest = loadQuest('quest_001')
+    //const quest = loadQuest('quest_002')
 
     gameRef.current = new Phaser.Game({
       ...gameConfig,
