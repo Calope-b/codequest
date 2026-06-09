@@ -26,6 +26,7 @@ class QuestScene extends Phaser.Scene {
     this.drawGrid()
     this.drawWalls(this.quest.walls)
     this.drawGoal(this.quest.goal)
+    this.drawEnemies(this.quest.enemies)
 
     // Build the knight container with a body and a facing arrow.
     const { x: startX, y: startY, facing } = this.quest.startPosition
@@ -58,7 +59,14 @@ class QuestScene extends Phaser.Scene {
       startY,
       facing,
       walls: this.quest.walls,
-      goal: { x: this.quest.goal.x, y: this.quest.goal.y },
+      // Only 'reach' quests have a goal cell; 'defeat_all' wins on kills.
+      goal:
+        this.quest.goal.type === 'reach'
+          ? { x: this.quest.goal.x, y: this.quest.goal.y }
+          : null,
+      goalType: this.quest.goal.type,
+      enemies: this.quest.enemies || [],
+      onEnemyDefeated: (enemy) => this.handleEnemyDefeated(enemy),
       onGoalReached: () => this.onQuestComplete?.(),
     })
 
@@ -117,6 +125,8 @@ class QuestScene extends Phaser.Scene {
   // the React Reset button via the scene reference.
   resetQuest() {
     this.knight.reset()
+    // The controller revived the enemies' state; bring their sprites back.
+    Object.values(this.enemySprites).forEach((s) => s.setVisible(true))
     this.onQuestReset?.()
   }
 
@@ -158,7 +168,8 @@ class QuestScene extends Phaser.Scene {
   // Draws the goal cell as a green square so it stands out.
   // Will become a chest sprite once we have assets.
   drawGoal(goal) {
-    if (!goal) return
+    // 'defeat_all' quests pass a goal with no cell; nothing to draw.
+    if (!goal || goal.x === undefined) return
     this.add.rectangle(
       goal.x * TILE_SIZE + TILE_SIZE / 2,
       goal.y * TILE_SIZE + TILE_SIZE / 2,
@@ -167,6 +178,31 @@ class QuestScene extends Phaser.Scene {
       0x6abf69
     )
   }
+
+  // Draws each enemy as a red square and keeps a handle to its sprite,
+  // keyed by cell, so we can hide it the instant it's defeated. Becomes
+  // a goblin sprite once we have art.
+  drawEnemies(enemies) {
+    this.enemySprites = {}
+    if (!enemies) return
+    for (const e of enemies) {
+      this.enemySprites[`${e.x},${e.y}`] = this.add.rectangle(
+        e.x * TILE_SIZE + TILE_SIZE / 2,
+        e.y * TILE_SIZE + TILE_SIZE / 2,
+        TILE_SIZE * 0.7,
+        TILE_SIZE * 0.7,
+        0xcc4444
+      )
+    }
+  }
+
+  // Hides the sprite of a defeated enemy. Called by the controller via
+  // the onEnemyDefeated callback, so visuals stay in sync with state.
+  handleEnemyDefeated(enemy) {
+    const sprite = this.enemySprites[`${enemy.x},${enemy.y}`]
+    if (sprite) sprite.setVisible(false)
+  }
+
 }
 
 export default QuestScene
