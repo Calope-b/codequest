@@ -3,10 +3,14 @@ import Phaser from 'phaser'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { gameConfig } from '../game/config'
-import { loadQuest } from '../game/questLoader'
+import { loadQuest, listQuests } from '../game/questLoader'
 import QuestScene from '../game/scenes/QuestScene'
 import BlocklyEditor from '../components/BlocklyEditor'
 import { runWorkspace } from '../game/runner'
+
+// Available quests, loaded once for the picker. Phase 4 will fetch these
+// from /api/quests instead of a static module.
+const AVAILABLE_QUESTS = listQuests()
 
 // Student-facing page. Hosts the Blockly editor on the left and the
 // Phaser game canvas on the right.
@@ -24,27 +28,42 @@ function StudentDashboard() {
   const [questComplete, setQuestComplete] = useState(false)
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState('')
+  const [questId, setQuestId] = useState('quest_001')
 
+  // Create the Phaser game once. The scene is registered but not started
+  // here; the quest effect below starts it, so quest data always flows
+  // through a single path and switching quests never recreates the game.
   useEffect(() => {
-    const quest = loadQuest('quest_001')
-    //const quest = loadQuest('quest_002')
-
     gameRef.current = new Phaser.Game({
       ...gameConfig,
       parent: gameContainerRef.current,
     })
-
-    gameRef.current.scene.add('QuestScene', QuestScene, true, {
-      quest,
-      onQuestComplete: () => setQuestComplete(true),
-      onQuestReset: () => setQuestComplete(false),
-    })
+    gameRef.current.scene.add('QuestScene', QuestScene, false)
 
     return () => {
       gameRef.current?.destroy(true)
       gameRef.current = null
     }
   }, [])
+
+  // (Re)start the scene whenever the selected quest changes. scene.start
+  // stops any running instance and re-runs init() + create() with fresh
+  // data, so switching quests needs no game teardown. Phaser queues the
+  // call if the game has not finished booting yet on first mount.
+  useEffect(() => {
+    const game = gameRef.current
+    if (!game) return
+
+    setQuestComplete(false)
+    setRunError('')
+
+    game.scene.start('QuestScene', {
+      quest: loadQuest(questId),
+      onQuestComplete: () => setQuestComplete(true),
+      onQuestReset: () => setQuestComplete(false),
+    })
+  }, [questId])
+
 
   function handleLogout() {
     logout()
@@ -107,11 +126,34 @@ function StudentDashboard() {
       <button onClick={handleLogout}>Log out</button>
 
       <p style={{ color: '#8a93a8', fontSize: '0.9rem', marginTop: '1.5rem' }}>
-        Assemble blocks on the left. Use the arrow keys on the game to
-        move the knight for now. The "Run" button comes next.
+        Pick a quest, assemble blocks, then press Run. Arrow keys also move the knight
       </p>
 
       <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+
+      <label style={{ color: '#c7cde0', fontSize: '0.95rem' }}>
+          Quest:{' '}
+          <select
+            value={questId}
+            onChange={(e) => setQuestId(e.target.value)}
+            disabled={running}
+            style={{
+              padding: '0.5rem 0.6rem',
+              borderRadius: '6px',
+              border: '1px solid #2a3147',
+              background: '#0f1320',
+              color: '#fff',
+              fontSize: '0.95rem',
+              cursor: running ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {AVAILABLE_QUESTS.map((q) => (
+              <option key={q.id} value={q.id}>
+                {q.title}
+              </option>
+            ))}
+          </select>
+      </label>
 
       <button
         onClick={handleRun}
