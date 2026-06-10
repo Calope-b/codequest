@@ -50,13 +50,14 @@ CREATE TABLE class_students (
 
 -- ============================================================
 -- attempts
--- Records every quest attempt by a student.
--- Quests themselves will be added later (phase 3).
+-- Records every quest attempt by a student. quest_id holds the
+-- static quest's string id (e.g. 'quest_001'); quests live as JSON
+-- on the client for now, so there is no quests table to reference.
 -- ============================================================
 CREATE TABLE attempts (
   id SERIAL PRIMARY KEY,
   student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  quest_id INTEGER NOT NULL,
+  quest_id VARCHAR(50) NOT NULL,
   score INTEGER NOT NULL DEFAULT 0,
   completed BOOLEAN NOT NULL DEFAULT FALSE,
   attempted_at TIMESTAMP NOT NULL DEFAULT NOW()
