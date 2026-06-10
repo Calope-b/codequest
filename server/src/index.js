@@ -15,10 +15,11 @@ if (process.env.NODE_ENV !== 'test') {
 const express = require('express');
 const cors = require('cors');
 
-// --- Routes ---
+// -------- Routes ---------
+
 const authRoutes = require('./routes/auth');
+const studentsRoutes = require('./routes/students');
 //const adminRoutes = require('./routes/admin');
-//const studentsRoutes = require('./routes/students');
 //const teachersRoutes = require('./routes/teachers');
 
 const app = express();
@@ -34,10 +35,11 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// --- API routes ---
+// ------- API routes ---------
+
 app.use('/api/auth', authRoutes);
+app.use('/api/students', studentsRoutes);
 //app.use('/api/admin', adminRoutes);
-//app.use('/api/students', studentsRoutes);
 //app.use('/api/teachers', teachersRoutes);
 
 // --- 404 handler for unknown API routes ---
