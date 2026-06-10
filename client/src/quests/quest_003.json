@@ -1,0 +1,21 @@
+{
+  "id": "quest_003",
+  "title": "The long march",
+  "description": "The flag is far to the east. Use a loop so you don't drop the same block nine times.",
+  "map": "field_1",
+  "startPosition": { "x": 1, "y": 4, "facing": "right" },
+  "goal": { "type": "reach", "x": 10, "y": 4 },
+  "allowedBlocks": ["move_forward", "turn_left", "turn_right", "controls_repeat_ext"],
+  "expectedSolution": { "minBlocks": 2 },
+  "enemies": [],
+  "walls": [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ]
+}
