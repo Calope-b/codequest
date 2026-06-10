@@ -1,13 +1,18 @@
 // Loads a quest definition and validates its shape.
-// In Phase 3.4 the quest is imported statically; Phase 4 will fetch
 // quests from /api/quests instead and this module is where that
 // switch will happen.
 import quest001 from '../quests/quest_001.json'
 import quest002 from '../quests/quest_002.json'
+import quest003 from '../quests/quest_003.json'
+import quest004 from '../quests/quest_004.json'
+import quest005 from '../quests/quest_005.json'
 
 const QUESTS = {
   quest_001: quest001,
   quest_002: quest002,
+  quest_003: quest003,
+  quest_004: quest004,
+  quest_005: quest005,
 }
 
 /**

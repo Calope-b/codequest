@@ -1,0 +1,21 @@
+{
+  "id": "quest_004",
+  "title": "Mind the wall",
+  "description": "The corridor bends. Detect the wall ahead and turn to follow the path to the flag.",
+  "map": "corridor_1",
+  "startPosition": { "x": 1, "y": 1, "facing": "right" },
+  "goal": { "type": "reach", "x": 9, "y": 5 },
+  "allowedBlocks": ["move_forward", "turn_left", "turn_right", "is_wall_ahead", "is_at_goal", "controls_if", "controls_whileUntil", "controls_repeat_ext"],
+  "expectedSolution": { "minBlocks": 4 },
+  "enemies": [],
+  "walls": [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  ]
+}
