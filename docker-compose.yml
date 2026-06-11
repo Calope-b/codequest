@@ -1,8 +1,8 @@
 # docker-compose.yml
-# Starts all 3 services with a single command: docker-compose up
+# Runs the PostgreSQL database in a container. The Express server and the
+# React client run directly on the host with `npm run dev` (see README).
 
 services:
-  # --- PostgreSQL database ---
   db:
     image: postgres:15
     restart: always
@@ -15,32 +15,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # --- Express.js Backend ---
-  server:
-    build: ./server
-    restart: always
-    ports:
-      - "5000:5000"
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      NODE_ENV: ${NODE_ENV}
-    depends_on:
-      - db
-
-  # --- React Frontend ---
-  client:
-    build: ./client
-    restart: always
-    ports:
-      - "5173:5173"
-    depends_on:
-      - server
-
-# --- Named volumes ---
 volumes:
   postgres_data:
