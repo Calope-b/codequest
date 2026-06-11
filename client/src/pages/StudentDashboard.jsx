@@ -7,32 +7,50 @@ import { loadQuest, listQuests } from '../game/questLoader'
 import QuestScene from '../game/scenes/QuestScene'
 import BlocklyEditor from '../components/BlocklyEditor'
 import { runWorkspace } from '../game/runner'
+import { recordAttempt, fetchProgress } from '../services/progress'
+import '../css/StudentDashboard.css'
 
 // Available quests, loaded once for the picker. Phase 4 will fetch these
 // from /api/quests instead of a static module.
 const AVAILABLE_QUESTS = listQuests()
 
-// Student-facing page. Hosts the Blockly editor on the left and the
-// Phaser game canvas on the right.
+// Student-facing page: Blockly editor on the left, Phaser canvas on the
+// right. The file reads top to bottom in lifecycle order: refs and state,
+// then the three effects (create game, start scene, load progress), then
+// the handlers, then the render.
 function StudentDashboard() {
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth()
   const navigate = useNavigate()
 
-  const gameContainerRef = useRef(null)
-  const gameRef = useRef(null)
+  // ----- Refs (objects living outside the render cycle) -----
 
-  // Blockly workspace reference, captured once the editor is ready.
-  // Used in sprint 3.6 to read the blocks and generate code.
+  // DOM node Phaser mounts its canvas into.
+  const gameContainerRef = useRef(null)
+  // The Phaser.Game instance, created once on mount.
+  const gameRef = useRef(null)
+  // The Blockly workspace, captured when the editor signals it is ready.
   const workspaceRef = useRef(null)
 
-  const [questComplete, setQuestComplete] = useState(false)
-  const [running, setRunning] = useState(false)
-  const [runError, setRunError] = useState('')
-  const [questId, setQuestId] = useState('quest_001')
+  // ----- State -----
 
-  // Create the Phaser game once. The scene is registered but not started
-  // here; the quest effect below starts it, so quest data always flows
-  // through a single path and switching quests never recreates the game.
+  // True once the current quest's objective has been met; shows the banner.
+  const [questComplete, setQuestComplete] = useState(false)
+  // True while a Blockly program is executing; disables the controls.
+  const [running, setRunning] = useState(false)
+  // Last error to surface to the student (run failure, save failure).
+  const [runError, setRunError] = useState('')
+  // Id of the quest currently loaded in the scene.
+  const [questId, setQuestId] = useState('quest_001')
+  // Ids of the quests this student has already completed at least once.
+  // Filled from the backend on mount, then updated locally after each
+  // confirmed save. Lazy initializer so the empty Set is built once,
+  // not rebuilt on every render.
+  const [completedQuests, setCompletedQuests] = useState(() => new Set())
+
+  // ----- Effect 1: create the Phaser game, once -----
+  // The scene is registered but not started here; effect 2 starts it, so
+  // quest data always flows through a single path and switching quests
+  // never recreates the game.
   useEffect(() => {
     gameRef.current = new Phaser.Game({
       ...gameConfig,
@@ -46,10 +64,10 @@ function StudentDashboard() {
     }
   }, [])
 
-  // (Re)start the scene whenever the selected quest changes. scene.start
-  // stops any running instance and re-runs init() + create() with fresh
-  // data, so switching quests needs no game teardown. Phaser queues the
-  // call if the game has not finished booting yet on first mount.
+  // ----- Effect 2: (re)start the scene whenever the quest changes -----
+  // scene.start stops any running instance and re-runs init() + create()
+  // with fresh data, so switching quests needs no game teardown. Phaser
+  // queues the call if the game has not finished booting on first mount.
   useEffect(() => {
     const game = gameRef.current
     if (!game) return
@@ -64,11 +82,35 @@ function StudentDashboard() {
     })
   }, [questId])
 
+  // ----- Effect 3: load which quests are already completed -----
+  // One fetch on mount to mark them in the selector; afterwards the Set
+  // is updated locally when a save succeeds, so no polling is needed.
+  useEffect(() => {
+    if (!token) return
 
-  function handleLogout() {
-    logout()
-    navigate('/login', { replace: true })
-  }
+    // Guards against a slow response landing after unmount (or after
+    // StrictMode's dev-only remount): without it we would setState on
+    // a component that no longer exists.
+    let cancelled = false
+
+    fetchProgress(token)
+      .then((rows) => {
+        if (cancelled) return
+        setCompletedQuests(
+          new Set(rows.filter((r) => r.completed).map((r) => r.quest_id))
+        )
+      })
+      .catch((err) => {
+        // Non-blocking: the game works fine without the checkmarks.
+        console.warn('Could not load progress:', err.message)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
+  // ----- Handlers: game flow -----
 
   // Reads the assembled blocks, generates async code, and runs it on
   // the knight controller exposed by the Phaser scene.
@@ -101,7 +143,37 @@ function StudentDashboard() {
     } finally {
       setRunning(false)
     }
+
+    // Record the attempt, win or lose: the teacher dashboard needs the
+    // failed tries too (attempt counts, success rates), not only wins.
+    // We read knight.goalReached, not the questComplete state: this
+    // closure captured questComplete from the render where Run was
+    // clicked, BEFORE the run, so it still holds that stale value here.
+    // The controller is a plain object outside React; reading it is
+    // always current.
+    saveAttempt(knight.goalReached)
   }
+
+  // Sends one attempt to the backend, fire-and-forget: the game never
+  // blocks on bookkeeping. The checkmark in the selector is only added
+  // once the server confirms the save, so a visible mark always means
+  // "stored in the database". On failure we reuse the run error line;
+  // an offline retry queue is out of scope for the MVP.
+  function saveAttempt(completed) {
+    recordAttempt(token, { questId, completed })
+      .then(() => {
+        if (completed) {
+          // Copy-then-add: React only re-renders if the state reference
+          // changes, so mutating the existing Set in place would be a
+          // silent no-op for the UI.
+          setCompletedQuests((prev) => new Set(prev).add(questId))
+        }
+      })
+      .catch((err) => {
+        setRunError(`Attempt not saved: ${err.message}`)
+      })
+  }
+
   // Resets the knight to its starting position so the student can run a
   // new program from scratch. Disabled while a program is running to
   // avoid resetting mid-execution.
@@ -111,106 +183,62 @@ function StudentDashboard() {
     scene?.resetQuest()
   }
 
+  // ----- Handlers: session -----
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
+  // ----- Render -----
 
   return (
-    <div
-      style={{
-        padding: '2rem',
-        color: '#fff',
-        backgroundColor: '#0f1320',
-        minHeight: '100vh',
-      }}
-    >
+    <div className="student-page">
       <h1>Student Dashboard</h1>
       <p>Logged in as: {user?.email}</p>
       <button onClick={handleLogout}>Log out</button>
 
-      <p style={{ color: '#8a93a8', fontSize: '0.9rem', marginTop: '1.5rem' }}>
+      <p className="student-hint">
         Pick a quest, assemble blocks, then press Run. Arrow keys also move the knight
       </p>
 
-      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-
-      <label style={{ color: '#c7cde0', fontSize: '0.95rem' }}>
+      {/* Toolbar: quest picker, Run, Reset, error line */}
+      <div className="student-toolbar">
+        <label className="quest-label">
           Quest:{' '}
           <select
+            className="quest-select"
             value={questId}
             onChange={(e) => setQuestId(e.target.value)}
             disabled={running}
-            style={{
-              padding: '0.5rem 0.6rem',
-              borderRadius: '6px',
-              border: '1px solid #2a3147',
-              background: '#0f1320',
-              color: '#fff',
-              fontSize: '0.95rem',
-              cursor: running ? 'not-allowed' : 'pointer',
-            }}
           >
             {AVAILABLE_QUESTS.map((q) => (
               <option key={q.id} value={q.id}>
-                {q.title}
+                {completedQuests.has(q.id) ? `✓ ${q.title}` : q.title}
               </option>
             ))}
           </select>
-      </label>
+        </label>
 
-      <button
-        onClick={handleRun}
-        disabled={running}
-        style={{
-          padding: '0.6rem 1.5rem',
-          borderRadius: '6px',
-          border: 'none',
-          background: running ? '#5a6b8a' : '#6abf69',
-          color: '#0f1320',
-          fontSize: '1rem',
-          fontWeight: 600,
-          cursor: running ? 'not-allowed' : 'pointer',
-        }}
-      >
-        {running ? 'Running...' : '▶ Run'}
-      </button>
+        <button className="run-button" onClick={handleRun} disabled={running}>
+          {running ? 'Running...' : '▶ Run'}
+        </button>
 
-      <button
-        onClick={handleReset}
-        disabled={running}
-        style={{
-          padding: '0.6rem 1.5rem',
-          borderRadius: '6px',
-          border: '1px solid #2a3147',
-          background: 'transparent',
-          color: running ? '#5a6b8a' : '#c7cde0',
-          fontSize: '1rem',
-          fontWeight: 600,
-          cursor: running ? 'not-allowed' : 'pointer',
-        }}
-      >
-        ↺ Reset
-      </button>
+        <button className="reset-button" onClick={handleReset} disabled={running}>
+          ↺ Reset
+        </button>
 
-      {runError && <span style={{ color: '#ff8a8a' }}>{runError}</span>}
-    </div>
+        {runError && <span className="run-error">{runError}</span>}
+      </div>
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+      {/* Workspace: Blockly on the left, game canvas on the right */}
+      <div className="workspace-row">
         <BlocklyEditor onWorkspaceReady={(ws) => { workspaceRef.current = ws }} />
 
         <div>
           <div ref={gameContainerRef} />
           {questComplete && (
-            <div
-              style={{
-                marginTop: '1rem',
-                padding: '0.75rem 1rem',
-                background: 'rgba(106, 191, 105, 0.15)',
-                border: '1px solid #6abf69',
-                borderRadius: '6px',
-                color: '#6abf69',
-                fontWeight: 600,
-              }}
-            >
-              Quest complete!
-            </div>
+            <div className="quest-banner">Quest complete!</div>
           )}
         </div>
       </div>
