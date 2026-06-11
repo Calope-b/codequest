@@ -1,0 +1,103 @@
+/* client/src/css/StudentDashboard.css
+   Styles for the student dashboard page. Moved out of inline style
+   props so the JSX stays readable; same convention as Login.css and
+   Register.css. Values are identical to the previous inline ones. */
+
+.student-page {
+  padding: 2rem;
+  color: #fff;
+  background-color: #0f1320;
+  min-height: 100vh;
+}
+
+.student-hint {
+  color: #8a93a8;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+/* --- Toolbar --- */
+
+.student-toolbar {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.quest-label {
+  color: #c7cde0;
+  font-size: 0.95rem;
+}
+
+.quest-select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #2a3147;
+  background: #0f1320;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.run-button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  background: #6abf69;
+  color: #0f1320;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reset-button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #2a3147;
+  background: transparent;
+  color: #c7cde0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* The disabled state replaces the old `running ?` ternaries: the
+   controls already receive disabled={running}, so CSS owns the
+   visual change and the JSX carries no styling logic. */
+.quest-select:disabled,
+.run-button:disabled,
+.reset-button:disabled {
+  cursor: not-allowed;
+}
+
+.run-button:disabled {
+  background: #5a6b8a;
+}
+
+.reset-button:disabled {
+  color: #5a6b8a;
+}
+
+.run-error {
+  color: #ff8a8a;
+}
+
+/* --- Workspace --- */
+
+.workspace-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.quest-banner {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(106, 191, 105, 0.15);
+  border: 1px solid #6abf69;
+  border-radius: 6px;
+  color: #6abf69;
+  font-weight: 600;
+}
