@@ -7,6 +7,7 @@ import { loadQuest, listQuests } from '../game/questLoader'
 import QuestScene from '../game/scenes/QuestScene'
 import BlocklyEditor from '../components/BlocklyEditor'
 import { runWorkspace } from '../game/runner'
+import { recordAttempt, fetchProgress } from '../services/progress'
 
 // Available quests, loaded once for the picker. Phase 4 will fetch these
 // from /api/quests instead of a static module.
@@ -15,7 +16,7 @@ const AVAILABLE_QUESTS = listQuests()
 // Student-facing page. Hosts the Blockly editor on the left and the
 // Phaser game canvas on the right.
 function StudentDashboard() {
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth()
   const navigate = useNavigate()
 
   const gameContainerRef = useRef(null)
@@ -29,6 +30,12 @@ function StudentDashboard() {
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState('')
   const [questId, setQuestId] = useState('quest_001')
+
+  // Ids of the quests this student has already completed at least once.
+  // Filled from the backend on mount, then updated locally after each
+  // confirmed save. Lazy initializer so the empty Set is built once,
+  // not rebuilt on every render.
+  const [completedQuests, setCompletedQuests] = useState(() => new Set())
 
   // Create the Phaser game once. The scene is registered but not started
   // here; the quest effect below starts it, so quest data always flows
@@ -63,6 +70,34 @@ function StudentDashboard() {
       onQuestReset: () => setQuestComplete(false),
     })
   }, [questId])
+
+  // Load which quests this student has already completed, to mark them
+  // in the selector. One fetch on mount; afterwards the Set is updated
+  // locally when a save succeeds, so no polling is needed.
+  useEffect(() => {
+    if (!token) return
+
+    // Guards against a slow response landing after unmount (or after
+    // StrictMode's dev-only remount): without it we would setState on
+    // a component that no longer exists.
+    let cancelled = false
+
+    fetchProgress(token)
+      .then((rows) => {
+        if (cancelled) return
+        setCompletedQuests(
+          new Set(rows.filter((r) => r.completed).map((r) => r.quest_id))
+        )
+      })
+      .catch((err) => {
+        // Non-blocking: the game works fine without the checkmarks.
+        console.warn('Could not load progress:', err.message)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [token])
 
 
   function handleLogout() {
@@ -101,6 +136,35 @@ function StudentDashboard() {
     } finally {
       setRunning(false)
     }
+
+    // Record the attempt, win or lose: the teacher dashboard needs the
+    // failed tries too (attempt counts, success rates), not only wins.
+    // We read knight.goalReached, not the questComplete state: this
+    // closure captured questComplete from the render where Run was
+    // clicked, BEFORE the run, so it still holds that stale value here.
+    // The controller is a plain object outside React; reading it is
+    // always current.
+    saveAttempt(knight.goalReached)
+  }
+
+  // Sends one attempt to the backend, fire-and-forget: the game never
+  // blocks on bookkeeping. The checkmark in the selector is only added
+  // once the server confirms the save, so a visible mark always means
+  // "stored in the database". On failure we reuse the run error line;
+  // an offline retry queue is out of scope for the MVP.
+  function saveAttempt(completed) {
+    recordAttempt(token, { questId, completed })
+      .then(() => {
+        if (completed) {
+          // Copy-then-add: React only re-renders if the state reference
+          // changes, so mutating the existing Set in place would be a
+          // silent no-op for the UI.
+          setCompletedQuests((prev) => new Set(prev).add(questId))
+        }
+      })
+      .catch((err) => {
+        setRunError(`Attempt not saved: ${err.message}`)
+      })
   }
   // Resets the knight to its starting position so the student can run a
   // new program from scratch. Disabled while a program is running to
@@ -149,7 +213,7 @@ function StudentDashboard() {
           >
             {AVAILABLE_QUESTS.map((q) => (
               <option key={q.id} value={q.id}>
-                {q.title}
+                {completedQuests.has(q.id) ? `✓ ${q.title}` : q.title}
               </option>
             ))}
           </select>
