@@ -113,6 +113,8 @@ codequest/
 │       └── utils/              → Helper functions
 │
 ├── server/                     → Express.js backend
+│   ├── scripts/
+│   │   └── seed-admin.js       → CLI: create an admin account
 │   ├── src/
 │   │   ├── config/             → Database connection
 │   │   ├── routes/             → API routes
@@ -139,7 +141,7 @@ codequest/
 │
 ├── .env.example                → Template for environment variables
 ├── .gitignore
-├── docker-compose.yml          → Postgres + backend + frontend in containers
+├── docker-compose.yml          → PostgreSQL container (server and client run on the host)
 └── README.md
 ```
 
@@ -153,7 +155,7 @@ Folders tagged "Phase 3" are empty for now. They'll be filled in once the game c
 
 - [Node.js](https://nodejs.org/) v18 or higher (v20 used in CI)
 - [PostgreSQL](https://www.postgresql.org/) v15 recommended
-- [Docker](https://www.docker.com/) (optional, but makes setup easier)
+- [Docker](https://www.docker.com/) (runs the PostgreSQL database)
 
 ### Setup
 
@@ -170,19 +172,18 @@ cd codequest
 cp .env.example .env
 ```
 
-3. Run with Docker:
+3. Start the database:
 
 ```bash
-docker compose up
+docker compose up -d db
 ```
 
-This starts three containers: the PostgreSQL database, the Express backend on port 5000, and the React frontend on port 5173 (Vite dev server).
+Docker only runs PostgreSQL here. The server and the client run directly on the host: containerizing them added nothing for a project deployed to Vercel and Render, so the compose file stays db-only.
 
-4. Or run manually if you prefer:
+4. Apply the schema (first run only), then start the backend and the frontend, each in its own terminal:
 
 ```bash
-# Database (Docker is still useful here)
-docker compose up -d db
+docker compose exec -T db psql -U postgres -d codequest < database/schema.sql
 
 # Backend
 cd server
@@ -193,6 +194,13 @@ npm run dev
 cd client
 npm install
 npm run dev
+```
+
+5. Create an admin account if you need one. Registration only allows the student and teacher roles, so admins are seeded from the command line:
+
+```bash
+cd server
+npm run seed:admin -- admin@codequest.dev pick-a-password
 ```
 
 ---
