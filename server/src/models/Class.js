@@ -73,4 +73,28 @@ async function removeStudent(classId, studentId) {
   return rowCount;
 }
 
-module.exports = { create, findByTeacher, findByIdAndTeacher, addStudent, removeStudent };
+// Progress for one class, one row per student-quest pair. The LEFT JOIN
+// to attempts keeps students with zero attempts: they come back as a
+// single row with a NULL quest_id, so the teacher sees who has not
+// started. COUNT(a.id) (not COUNT(*)) so that empty row counts as zero
+// attempts rather than one. The ::int casts turn bigint aggregates into
+// plain JSON numbers. See TEACHER_DESIGN.md section 2.
+async function progressByClass(classId) {
+  const { rows } = await db.query(
+    `SELECT u.id AS student_id, u.email,
+            a.quest_id,
+            bool_or(a.completed) AS completed,
+            COUNT(a.id)::int     AS attempts,
+            MAX(a.score)::int    AS best_score
+     FROM class_students cs
+     JOIN users u         ON u.id = cs.student_id
+     LEFT JOIN attempts a ON a.student_id = u.id
+     WHERE cs.class_id = $1
+     GROUP BY u.id, u.email, a.quest_id
+     ORDER BY u.email, a.quest_id`,
+    [classId]
+  );
+  return rows;
+}
+
+module.exports = { create, findByTeacher, findByIdAndTeacher, addStudent, removeStudent, progressByClass };
