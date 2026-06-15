@@ -20,7 +20,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const studentsRoutes = require('./routes/students');
 //const adminRoutes = require('./routes/admin');
-//const teachersRoutes = require('./routes/teachers');
+const teachersRoutes = require('./routes/teachers');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,7 +40,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentsRoutes);
 //app.use('/api/admin', adminRoutes);
-//app.use('/api/teachers', teachersRoutes);
+app.use('/api/teachers', teachersRoutes);
 
 // --- 404 handler for unknown API routes ---
 app.use((req, res) => {
