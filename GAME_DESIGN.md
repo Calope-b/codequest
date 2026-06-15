@@ -242,9 +242,9 @@ That is enough to prove the architecture handles enemies without locking us into
 
 Built on top of the Phase 3 primitives, Phase 4 adds the parts that make a real boss fight feel like one.
 
-Both the knight and the boss have hit points, so the knight can die and the quest can fail. That triggers a retry flow. Bosses follow attack patterns, either scripted or AI-driven, like "move toward knight, telegraph attack, swing". The existing `bosses` table is populated with one entry per chapter, each referencing a sprite, an HP pool, an attack pattern, and the blocks the student must use to win.
+Both the knight and the boss have hit points, so the knight can die and the quest can fail. That triggers a retry flow. Bosses follow attack patterns, either scripted or AI-driven, like "move toward knight, telegraph attack, swing". A `bosses` table (to be added in Phase 4, not in the schema yet) would hold one entry per chapter, each referencing a sprite, an HP pool, an attack pattern, and the blocks the student must use to win.
 
-Three defeat conditions are handled: time-out, knight dies, knight wins. Each outcome is logged through `quest_progress` so the teacher dashboard can show it. On top of all that comes visual polish: hit flashes, knockback, death animations, victory fanfare.
+Three defeat conditions are handled: time-out, knight dies, knight wins. Each outcome is logged in the `attempts` table so the teacher dashboard can show it. On top of all that comes visual polish: hit flashes, knockback, death animations, victory fanfare.
 
 ### Why this split
 
@@ -256,7 +256,7 @@ The split also reflects an iterative design choice. Building one-shot enemies fi
 
 ## 10. Out of scope for Phase 3, addressed later
 
-Custom blocks, where students create reusable mini-algorithms, are planned for Phase 4 alongside the teacher dashboard. Persistence of attempts will come at the same time: the `quest_progress` table exists in the schema but is not written to in Phase 3.
+Custom blocks, where students create reusable mini-algorithms, are planned for Phase 4 alongside the teacher dashboard. Attempts are persisted in the `attempts` table, written to on every quest run since the progress wiring landed.
 
 A hint system, where per-quest hints are exposed to the student after N failed attempts, is also planned for Phase 4.
 
