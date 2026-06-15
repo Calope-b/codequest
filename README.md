@@ -50,7 +50,7 @@ Three separate interfaces.
 
 **Admins** can manage users, assign roles, and change platform settings.
 
-Authentication uses JWT tokens, and passwords are hashed with bcrypt. The three roles (student, teacher, admin) each land on a different interface after login. All inputs are validated server-side against type, length, format, and a role whitelist. The auth backend has 55 automated tests running on every push (see the [Tests](#tests) section).
+Authentication uses JWT tokens, and passwords are hashed with bcrypt. The three roles (student, teacher, admin) each land on a different interface after login. All inputs are validated server-side against type, length, format, and a role whitelist. The backend has 97 automated tests running on every push (see the [Tests](#tests) section).
 
 ---
 
@@ -228,7 +228,7 @@ Both `.env` and `.env.test` are gitignored. Never commit them.
 
 ## Tests
 
-The auth backend has 55 automated tests written with Jest and Supertest, covering all 52 cases listed in `TEST_PLAN.md` plus 3 sanity checks for the harness itself. Every test makes a real HTTP call against an Express app and hits a real Postgres database.
+The backend has 97 automated tests written with Jest and Supertest, covering the cases listed in `TEST_PLAN.md` and `TEACHER_DESIGN.md` plus 3 sanity checks for the harness itself. Every test makes a real HTTP call against an Express app and hits a real Postgres database.
 
 Breakdown by module:
 
@@ -238,7 +238,11 @@ Breakdown by module:
 | `login.test.js` | `POST /api/auth/login` | 11 |
 | `middlewares.test.js` | `verifyToken` and `requireRole` | 11 |
 | `me.test.js` | `GET /api/auth/me` | 5 |
-| `sanity.test.js` | Test harness itself | 3 |
+| `students.test.js` | student progress endpoints | 9 |
+| `teacher-classes.test.js` | teacher class create/list | 10 |
+| `teacher-members.test.js` | add/remove students in a class | 14 |
+| `teacher-progress.test.js` | class progress aggregation | 9 |
+| `sanity.test.js` | test harness itself | 3 |
 
 ### Running the tests locally
 
@@ -301,7 +305,7 @@ Once running:
 ## Roadmap
 
 - **Phase 1, Foundations**: project structure, schema, scaffolding. ✓
-- **Phase 2, Authentication**: JWT backend, bcrypt, role-based access, hardening, 55 tests, CI, plus the React frontend (AuthContext, role-based routing). ✓
+- **Phase 2, Authentication**: JWT backend, bcrypt, role-based access, hardening, auth test suite, CI, plus the React frontend (AuthContext, role-based routing). ✓
 - **Phase 3, Game core**: Phaser scenes, knight entity, first quest, Blockly integration. (in progress)
 - **Phase 4, Teacher dashboard and admin panel**: class management, progress tracking, user CRUD.
 - **Phase 5, Content seeding, QA, and deployment** to Vercel + Render.

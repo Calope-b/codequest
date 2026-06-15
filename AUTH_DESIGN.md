@@ -7,7 +7,7 @@ This document describes how auth works in CodeQuest: registration, login, and ho
 A few decisions up front, leaning toward simplicity. This is a school project on an 11-week timeline, not a production banking app, so the goal is code I can explain line by line.
 
 - **One JWT, no refresh token.** Tokens are valid for 24 hours; when yours expires, you log in again. A refresh mechanism would be nicer, but it brings real headaches: cookies across two deployment domains (Vercel on the front, Render on the back), rotation, server-side revocation. Not worth it for v1.
-- **Access token stored in `localStorage` on the client.** That's less safe than memory-only or httpOnly cookies (XSS could read it), but React escapes everything by default and I avoid `dangerouslySetInnerHTML`. Acceptable trade-off for the MVP.
+- **Access token stored in `sessionStorage` on the client.** Less safe than memory-only or httpOnly cookies (XSS could read it), but `sessionStorage` is cleared when the tab closes, which shrinks the theft window compared to `localStorage`. React escapes everything by default and I avoid `dangerouslySetInnerHTML`. Acceptable trade-off for the MVP.
 - **Bcrypt with 12 salt rounds.** Below 10 is too fast; above 14 noticeably slows registration. 12 is the usual sweet spot.
 - **Role-based access via a middleware chain.** Every protected route runs `verifyToken` first to check identity, then `requireRole(...)` when a specific role is required. Two small middlewares, reusable everywhere.
 - **At registration, role is restricted to `student` or `teacher`.** Admin accounts only come from the seed script. Letting anyone self-register as admin would be a non-starter.
@@ -53,7 +53,7 @@ sequenceDiagram
     S->>S: jwt.sign({ id, role }, secret, expiresIn: 24h)
     S-->>C: 201 Created<br/>{ token, user: { id, email, role } }
 
-    C->>C: localStorage.setItem('token', token)
+    C->>C: sessionStorage.setItem('token', token)
     C-->>U: Redirect by role
 ```
 
@@ -88,7 +88,7 @@ sequenceDiagram
     S->>S: jwt.sign({ id, role }, secret, expiresIn: 24h)
     S-->>C: 200 OK<br/>{ token, user: { id, email, role } }
 
-    C->>C: localStorage.setItem('token', token)
+    C->>C: sessionStorage.setItem('token', token)
     C-->>U: Redirect by role:<br/>student → /game<br/>teacher → /dashboard<br/>admin → /admin
 ```
 
@@ -113,7 +113,7 @@ sequenceDiagram
     V->>V: Read header,<br/>jwt.verify(token, secret)
     alt Token missing, invalid, or expired
         V-->>C: 401 Unauthorized
-        C->>C: Clear localStorage,<br/>redirect to /login
+        C->>C: Clear sessionStorage,<br/>redirect to /login
     end
 
     V->>V: req.user = { id, role }
