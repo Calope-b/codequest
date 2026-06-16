@@ -18,5 +18,12 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    // Vitest configuration. jsdom gives a browser-like global scope so
+    // importing modules that transitively import Phaser does not crash;
+    // the tests themselves never instantiate a Phaser.Game.
+    test: {
+      environment: 'jsdom',
+      globals: true,
+    },
   }
 })

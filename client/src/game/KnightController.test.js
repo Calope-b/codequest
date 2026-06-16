@@ -5,7 +5,16 @@
 // the fake scene below records calls and resolves tweens immediately, so
 // the controller's async methods complete without animation or a canvas.
 
-import { describe, test, expect, beforeEach, vi } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
+
+// config.js imports Phaser at module load, and Phaser's import-time
+// initialization touches a real canvas 2d context that jsdom does not
+// provide, which throws. The controller never needs Phaser (it reads
+// only TILE_SIZE/GRID_WIDTH/GRID_HEIGHT numbers from config), so we stub
+// the module out entirely. This IS the GAME_DESIGN claim made concrete:
+// the controller is exercised with no game engine present at all.
+vi.mock('phaser', () => ({ default: {} }))
+
 import KnightController from './KnightController'
 
 // A stand-in for the Phaser scene. The controller only ever touches
