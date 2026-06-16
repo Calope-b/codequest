@@ -1,0 +1,81 @@
+/* client/src/css/AdminDashboard.css
+   Styles for the admin user-management page. Same convention as the
+   other dashboards: no inline style props in JSX. */
+
+.admin-page {
+  padding: 2rem;
+  color: #fff;
+  background-color: #0f1320;
+  min-height: 100vh;
+}
+
+.admin-error {
+  color: #ff8a8a;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.muted {
+  color: #8a93a8;
+  font-size: 0.9rem;
+}
+
+.users-wrap {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.users-table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 600px;
+}
+
+.users-table th,
+.users-table td {
+  border: 1px solid #2a3147;
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+}
+
+.role-select {
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #2a3147;
+  background: #0f1320;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.role-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Admin rows are read-only: the role API only assigns student/teacher,
+   so an existing admin shows a plain label, not a select. */
+.role-label {
+  color: #c7cde0;
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid #6b3a3a;
+  color: #ff8a8a;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+}
+
+.btn-danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.you-tag {
+  color: #6abf69;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
