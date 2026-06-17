@@ -2,6 +2,7 @@
   "id": "quest_005",
   "title": "The gauntlet",
   "description": "A goblin guards the bend. Strike what stands in front of you, turn at walls, and reach the flag.",
+  "hint": "Le coffre ne viendra pas à toi. Regarde bien les murs : parfois il faut tourner le dos à la sortie pour mieux la trouver.",
   "map": "corridor_2",
   "startPosition": { "x": 1, "y": 1, "facing": "right" },
   "goal": { "type": "reach", "x": 9, "y": 5 },

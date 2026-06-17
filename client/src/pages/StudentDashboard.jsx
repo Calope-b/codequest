@@ -47,6 +47,10 @@ function StudentDashboard() {
   // not rebuilt on every render.
   const [completedQuests, setCompletedQuests] = useState(() => new Set())
 
+  // True once the student has revealed the current quest's hint. Reset on
+  // quest change so each quest starts with its hint hidden.
+  const [hintRevealed, setHintRevealed] = useState(false)
+
   // ----- Effect 1: create the Phaser game, once -----
   // The scene is registered but not started here; effect 2 starts it, so
   // quest data always flows through a single path and switching quests
@@ -74,6 +78,7 @@ function StudentDashboard() {
 
     setQuestComplete(false)
     setRunError('')
+    setHintRevealed(false)
 
     game.scene.start('QuestScene', {
       quest: loadQuest(questId),
@@ -189,6 +194,9 @@ function StudentDashboard() {
     logout()
     navigate('/login', { replace: true })
   }
+  // Hint text for the current quest, if it defines one. Quests without a
+  // hint simply show no hint button.
+  const currentHint = loadQuest(questId).hint
 
   // ----- Render -----
 
@@ -228,8 +236,22 @@ function StudentDashboard() {
           ↺ Reset
         </button>
 
+        {currentHint && !hintRevealed && (
+          <button className="hint-button" onClick={() => setHintRevealed(true)}>
+            💡 Indice ?
+          </button>
+        )}
+
         {runError && <span className="run-error">{runError}</span>}
       </div>
+
+      {/* Revealed hint, shown under the toolbar once the student asks for it */}
+      {currentHint && hintRevealed && (
+        <div className="hint-box">
+          <span className="hint-text">{currentHint}</span>
+          <span className="hint-used">indice utilisé</span>
+        </div>
+      )}
 
       {/* Workspace: Blockly on the left, game canvas on the right */}
       <div className="workspace-row">
