@@ -101,3 +101,46 @@
   color: #6abf69;
   font-weight: 600;
 }
+
+/* --- Hint --- */
+
+/* Discreet but noticeable: muted amber, lighter than the action buttons,
+   sits at the end of the toolbar without competing with Run. */
+.hint-button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  border: 1px dashed #6b5a3a;
+  background: transparent;
+  color: #d8b878;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.hint-button:hover {
+  border-color: #d8b878;
+}
+
+.hint-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(216, 184, 120, 0.1);
+  border: 1px solid #6b5a3a;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 640px;
+}
+
+.hint-text {
+  color: #e0cda0;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.hint-used {
+  color: #8a93a8;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  margin-left: auto;
+}

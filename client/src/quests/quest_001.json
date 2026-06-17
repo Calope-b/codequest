@@ -2,6 +2,7 @@
   "id": "quest_001",
   "title": "First steps",
   "description": "Navigate to the chest.",
+  "hint": "Le coffre ne viendra pas à toi. Regarde bien les murs : parfois il faut tourner le dos à la sortie pour mieux la trouver.",
   "map": "tutorial_1",
   "startPosition": { "x": 1, "y": 1, "facing": "right" },
   "goal": { "type": "reach", "x": 10, "y": 6 },
