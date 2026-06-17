@@ -14,6 +14,7 @@
 //
 // See GAME_DESIGN.md section 4 for the full rationale.
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from './config'
+import { playMove, playTurn, playAttack, playWin } from './sound'
 
 const MOVE_DURATION_MS = 200
 const TURN_DURATION_MS = 150
@@ -103,6 +104,8 @@ class KnightController {
     this.cellX = targetX
     this.cellY = targetY
 
+    playMove()
+
     await this.tweenSprite(
       this.cellToPixel(targetX),
       this.cellToPixel(targetY),
@@ -119,6 +122,7 @@ class KnightController {
   async turnLeft() {
     const order = ['up', 'left', 'down', 'right']
     this.facing = order[(order.indexOf(this.facing) + 1) % order.length]
+    playTurn()
     await this.tweenRotation()
   }
 
@@ -128,6 +132,7 @@ class KnightController {
   async turnRight() {
     const order = ['up', 'right', 'down', 'left']
     this.facing = order[(order.indexOf(this.facing) + 1) % order.length]
+    playTurn()
     await this.tweenRotation()
   }
 
@@ -146,6 +151,8 @@ class KnightController {
     const originY = this.cellToPixel(this.cellY)
     const jabX = originX + dx * (TILE_SIZE * 0.3)
     const jabY = originY + dy * (TILE_SIZE * 0.3)
+
+    playAttack()
 
     await this.tweenSprite(jabX, jabY, ATTACK_DURATION_MS / 2)
     await this.tweenSprite(originX, originY, ATTACK_DURATION_MS / 2)
@@ -245,6 +252,7 @@ class KnightController {
     if (this.goalReached) return
     if (this.isQuestComplete()) {
       this.goalReached = true
+      playWin()
       this.onGoalReached?.()
     }
   }
