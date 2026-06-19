@@ -70,4 +70,32 @@ async function deleteById(id) {
   return rowCount;
 }
 
-module.exports = { findByEmail, findById, create, findAll, updateRole, deleteById };
+// Returns a user WITH the password hash, for re-authentication before a
+// sensitive change (email/password). Not for sending to the client.
+async function findByIdWithHash(id) {
+  const { rows } = await db.query(
+    'SELECT id, email, password_hash, role FROM users WHERE id = $1',
+    [id]
+  );
+  return rows[0] || null;
+}
+
+// Changes a user's email, returns the updated row without the hash, or
+// null if no user has that id.
+async function updateEmail(id, email) {
+  const { rows } = await db.query(
+    `UPDATE users SET email = $2 WHERE id = $1 RETURNING id, email, role`,
+    [id, email]
+  );
+  return rows[0] || null;
+}
+
+// Replaces a user's password hash. No return value needed.
+async function updatePassword(id, passwordHash) {
+  await db.query(
+    'UPDATE users SET password_hash = $2 WHERE id = $1',
+    [id, passwordHash]
+  );
+}
+
+module.exports = { findByEmail, findById, create, findAll, updateRole, deleteById, findByIdWithHash, updateEmail, updatePassword };
