@@ -9,9 +9,36 @@ import Phaser from 'phaser'
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from '../config'
 import KnightController from '../KnightController'
 
+const FLOOR_VARIANTS = 16
+const WALL_VARIANTS = 15
+const GOAL_VARIANTS = 2
+
+// Reads a tile index from an optional matrix, falling back to 0 when the
+// matrix is absent or the cell is out of range, so quests without
+// floorTiles/wallTiles still render with a default look.
+function tileIndexAt(matrix, x, y, fallback = 0) {
+  if (!matrix || !matrix[y] || matrix[y][x] === undefined) return fallback
+  return matrix[y][x]
+}
 class QuestScene extends Phaser.Scene {
   constructor() {
     super({ key: 'QuestScene' })
+  }
+
+  // Loads all sprite images before the scene is drawn. Files live under
+  // client/public/sprites, served at /sprites by Vite. Kenney assets
+  // (CC0), 16x16, scaled up by Phaser with pixelArt rendering.
+  preload() {
+    this.load.image('knight', '/sprites/knight.png')
+    this.load.image('goblin_a', '/sprites/goblin_a.png')
+    this.load.image('goblin_b', '/sprites/goblin_b.png')
+    for (let i = 0; i < GOAL_VARIANTS; i++) this.load.image(`goal_${i}`, `/sprites/goal_${i}.png`)
+    for (let i = 0; i < FLOOR_VARIANTS; i++) {
+      this.load.image(`floor_${i}`, `/sprites/floor/floor_${i}.png`)
+    }
+    for (let i = 0; i < WALL_VARIANTS; i++) {
+      this.load.image(`wall_${i}`, `/sprites/wall/wall_${i}.png`)
+    }
   }
 
   // Phaser calls init() with the data passed to scene.start(key, data).
@@ -23,6 +50,7 @@ class QuestScene extends Phaser.Scene {
   }
 
   create() {
+    this.drawFloor()
     this.drawGrid()
     this.drawWalls(this.quest.walls)
     this.drawGoal(this.quest.goal)
@@ -31,15 +59,12 @@ class QuestScene extends Phaser.Scene {
     // Build the knight container with a body and a facing arrow.
     const { x: startX, y: startY, facing } = this.quest.startPosition
 
-    this.knightSprite = this.add.container(0, 0)
-    const body = this.add.rectangle(0, 0, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0xf0c674)
-    const arrow = this.add.triangle(
-      TILE_SIZE * 0.25, 0,
-      -TILE_SIZE * 0.1, -TILE_SIZE * 0.15,
-      -TILE_SIZE * 0.1, TILE_SIZE * 0.15,
-      0x0f1320
-    )
-    this.knightSprite.add([body, arrow])
+    // The knight is a single image. We still rotate it to show facing,
+    // so the sprite should read well when turned (a top-down or side view
+    // works best). setOrigin(0.5) keeps rotation centered on the cell.
+    this.knightSprite = this.add.image(0, 0, 'knight')
+    this.knightSprite.setDisplaySize(TILE_SIZE * 0.9, TILE_SIZE * 0.9)
+    this.knightSprite.setOrigin(0.5)
 
     this.knightSprite.x = startX * TILE_SIZE + TILE_SIZE / 2
     this.knightSprite.y = startY * TILE_SIZE + TILE_SIZE / 2
@@ -146,20 +171,21 @@ class QuestScene extends Phaser.Scene {
     graphics.strokePath()
   }
 
-  // Fills every cell where walls[y][x] === 1 with a darker square.
+  // Fills every cell where walls[y][x] === 1 with a png.
   // Will be replaced by a real tilemap when Tiled integration lands.
   drawWalls(walls) {
     if (!walls) return
+    const wallTiles = this.quest.wallTiles
     for (let y = 0; y < walls.length; y++) {
       for (let x = 0; x < walls[y].length; x++) {
         if (walls[y][x] === 1) {
-          this.add.rectangle(
+          const v = tileIndexAt(wallTiles, x, y, 0)
+          const img = this.add.image(
             x * TILE_SIZE + TILE_SIZE / 2,
             y * TILE_SIZE + TILE_SIZE / 2,
-            TILE_SIZE,
-            TILE_SIZE,
-            0x2a3147
+            `wall_${v}`
           )
+          img.setDisplaySize(TILE_SIZE, TILE_SIZE)
         }
       }
     }
@@ -168,15 +194,16 @@ class QuestScene extends Phaser.Scene {
   // Draws the goal cell as a green square so it stands out.
   // Will become a chest sprite once we have assets.
   drawGoal(goal) {
-    // 'defeat_all' quests pass a goal with no cell; nothing to draw.
     if (!goal || goal.x === undefined) return
-    this.add.rectangle(
+    // Optional goalTile picks which goal sprite to show (0 = door,
+    // 1 = ladder). Absent means the default door.
+    const v = this.quest.goalTile ?? 0
+    const img = this.add.image(
       goal.x * TILE_SIZE + TILE_SIZE / 2,
       goal.y * TILE_SIZE + TILE_SIZE / 2,
-      TILE_SIZE * 0.6,
-      TILE_SIZE * 0.6,
-      0x6abf69
+      `goal_${v}`
     )
+    img.setDisplaySize(TILE_SIZE, TILE_SIZE)
   }
 
   // Draws each enemy as a red square and keeps a handle to its sprite,
@@ -185,16 +212,35 @@ class QuestScene extends Phaser.Scene {
   drawEnemies(enemies) {
     this.enemySprites = {}
     if (!enemies) return
-    for (const e of enemies) {
-      this.enemySprites[`${e.x},${e.y}`] = this.add.rectangle(
+    enemies.forEach((e, i) => {
+      // Alternate the two goblin looks so a group is not all identical.
+      const key = i % 2 === 0 ? 'goblin_a' : 'goblin_b'
+      const img = this.add.image(
         e.x * TILE_SIZE + TILE_SIZE / 2,
         e.y * TILE_SIZE + TILE_SIZE / 2,
-        TILE_SIZE * 0.7,
-        TILE_SIZE * 0.7,
-        0xcc4444
+        key
       )
+      img.setDisplaySize(TILE_SIZE * 0.9, TILE_SIZE * 0.9)
+      this.enemySprites[`${e.x},${e.y}`] = img
+    })
+  }
+
+  // Lays a floor tile in every cell, picking a stable variant per cell.
+  drawFloor() {
+    const floorTiles = this.quest.floorTiles
+    for (let y = 0; y < GRID_HEIGHT; y++) {
+      for (let x = 0; x < GRID_WIDTH; x++) {
+        const v = tileIndexAt(floorTiles, x, y, 0)
+        const img = this.add.image(
+          x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+          `floor_${v}`
+        )
+        img.setDisplaySize(TILE_SIZE, TILE_SIZE)
+      }
     }
   }
+
 
   // Hides the sprite of a defeated enemy. Called by the controller via
   // the onEnemyDefeated callback, so visuals stay in sync with state.
