@@ -1,0 +1,47 @@
+/* client/src/css/theme.css
+   Central theme tokens for CodeQuest. Every page color references these
+   variables, so the whole look can be retuned in one place, and extra
+   themes can be added later by overriding the same names under a
+   [data-theme="..."] selector on <html>.
+
+   Default theme: light med-fantasy. A warm parchment background with
+   royal blue-violet actions and gold and emerald accents, aiming for a
+   look that is pleasant but serious. */
+
+:root {
+  /* Surfaces */
+  --bg-page: #faf6ef;        /* warm parchment page background */
+  --bg-surface: #ffffff;     /* cards and content zones */
+  --bg-inset: #f1ece1;       /* subtle inset / hover surface */
+
+  /* Text */
+  --text-strong: #23204a;    /* headings on light surfaces */
+  --text-body: #2c2c2a;      /* body text */
+  --text-muted: #5f5e5a;     /* secondary / hints */
+
+  /* Borders */
+  --border: #e3dccb;         /* warm light separators */
+  --border-strong: #cabfa3;
+
+  /* Primary action (royal blue-violet) */
+  --accent: #3c3489;
+  --accent-hover: #2d2769;
+  --accent-soft-bg: #eeedfe;
+  --accent-soft-text: #3c3489;
+  --on-accent: #ffffff;      /* text on an accent button */
+
+  /* Success (emerald) */
+  --success: #0f6e56;
+  --success-soft-bg: #e1f5ee;
+  --success-soft-text: #0f6e56;
+
+  /* Warm accent (gold / treasure) for hints and highlights */
+  --gold: #ba7517;
+  --gold-soft-bg: #faeeda;
+  --gold-soft-text: #854f0b;
+
+  /* Danger for delete and errors */
+  --danger: #a32d2d;
+  --danger-soft-text: #a32d2d;
+  --danger-border: #e0b4b4;
+}

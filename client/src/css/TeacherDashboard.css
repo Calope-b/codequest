@@ -1,11 +1,11 @@
 /* client/src/css/TeacherDashboard.css
    Styles for the teacher dashboard page and the class progress table.
-   Same convention as StudentDashboard.css: no inline style props in JSX. */
+   Colors reference the central theme tokens in theme.css. */
 
 .teacher-page {
   padding: 2rem;
-  color: #fff;
-  background-color: #0f1320;
+  color: var(--text-body);
+  background-color: var(--bg-page);
   min-height: 100vh;
 }
 
@@ -23,9 +23,9 @@
 .text-input {
   padding: 0.5rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid #2a3147;
-  background: #0f1320;
-  color: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-body);
   font-size: 0.95rem;
 }
 
@@ -33,22 +33,22 @@
   padding: 0.5rem 1.1rem;
   border-radius: 6px;
   border: none;
-  background: #6abf69;
-  color: #0f1320;
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .btn:disabled {
-  background: #5a6b8a;
+  background: var(--border-strong);
   cursor: not-allowed;
 }
 
 .btn-danger {
   background: transparent;
-  border: 1px solid #6b3a3a;
-  color: #ff8a8a;
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
   font-weight: 600;
   cursor: pointer;
   padding: 0.25rem 0.6rem;
@@ -56,12 +56,12 @@
 }
 
 .form-error {
-  color: #ff8a8a;
+  color: var(--danger);
   font-size: 0.9rem;
 }
 
 .muted {
-  color: #8a93a8;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -79,7 +79,7 @@
 
 .progress-table th,
 .progress-table td {
-  border: 1px solid #2a3147;
+  border: 1px solid var(--border);
   padding: 0.5rem 0.7rem;
   text-align: center;
   white-space: nowrap;
@@ -90,20 +90,20 @@
   text-align: left;
   position: sticky;
   left: 0;
-  background: #0f1320; /* keep the email readable while scrolling quests */
+  background: var(--bg-page); /* keep the email readable while scrolling quests */
 }
 
 /* The three cell states. Shape + color, never color alone, so they stay
    distinguishable without relying on color perception. */
 .cell-done {
-  color: #6abf69;
+  color: var(--success);
   font-weight: 700;
 }
 
 .cell-tried {
-  color: #e0a356;
+  color: var(--gold);
 }
 
 .cell-none {
-  color: #2a3147; /* a dim dash on the dark background: "not attempted" */
+  color: var(--border-strong); /* a dim dash on the light background: "not attempted" */
 }

@@ -1,22 +1,22 @@
 /* client/src/css/AdminDashboard.css
-   Styles for the admin user-management page. Same convention as the
-   other dashboards: no inline style props in JSX. */
+   Styles for the admin user-management page. Colors reference the
+   central theme tokens in theme.css. */
 
 .admin-page {
   padding: 2rem;
-  color: #fff;
-  background-color: #0f1320;
+  color: var(--text-body);
+  background-color: var(--bg-page);
   min-height: 100vh;
 }
 
 .admin-error {
-  color: #ff8a8a;
+  color: var(--danger);
   font-size: 0.9rem;
   margin-top: 1rem;
 }
 
 .muted {
-  color: #8a93a8;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -33,7 +33,7 @@
 
 .users-table th,
 .users-table td {
-  border: 1px solid #2a3147;
+  border: 1px solid var(--border);
   padding: 0.5rem 0.8rem;
   text-align: left;
 }
@@ -41,9 +41,9 @@
 .role-select {
   padding: 0.3rem 0.5rem;
   border-radius: 6px;
-  border: 1px solid #2a3147;
-  background: #0f1320;
-  color: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-body);
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -56,13 +56,13 @@
 /* Admin rows are read-only: the role API only assigns student/teacher,
    so an existing admin shows a plain label, not a select. */
 .role-label {
-  color: #c7cde0;
+  color: var(--text-muted);
 }
 
 .btn-danger {
   background: transparent;
-  border: 1px solid #6b3a3a;
-  color: #ff8a8a;
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
   font-weight: 600;
   cursor: pointer;
   padding: 0.25rem 0.7rem;
@@ -75,7 +75,7 @@
 }
 
 .you-tag {
-  color: #6abf69;
+  color: var(--success);
   font-size: 0.85rem;
   font-weight: 600;
 }
