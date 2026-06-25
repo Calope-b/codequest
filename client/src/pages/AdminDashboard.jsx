@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { fetchUsers, updateUserRole, deleteUser } from '../services/admin'
 import '../css/AdminDashboard.css'
+import DashboardHeader from '../components/DashboardHeader'
 
 // Roles the admin can assign through the UI. 'admin' is absent on purpose:
 // the backend only accepts student/teacher (admins are seed-only), so the
@@ -80,9 +81,7 @@ function AdminDashboard() {
 
   return (
     <div className="admin-page">
-      <h1>Admin Dashboard</h1>
-      <p>Logged in as: {user?.email}</p>
-      <button onClick={handleLogout}>Log out</button>
+      <DashboardHeader title="Admin Dashboard" />
 
       {error && <p className="admin-error">{error}</p>}
 

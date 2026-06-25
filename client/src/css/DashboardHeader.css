@@ -1,0 +1,49 @@
+/* client/src/css/DashboardHeader.css
+   Shared header bar for the dashboards. Uses the theme tokens so it
+   follows the active theme. Title left, account info and logout right. */
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-header-title {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-strong);
+  letter-spacing: 0.02em;
+}
+
+.dashboard-header-account {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.dashboard-header-email {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.dashboard-header-logout {
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dashboard-header-logout:hover {
+  background: var(--accent-soft-bg);
+  border-color: var(--accent);
+}

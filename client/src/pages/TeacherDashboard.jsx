@@ -10,6 +10,7 @@ import {
 } from '../services/teachers'
 import ClassProgressTable from '../components/ClassProgressTable'
 import '../css/TeacherDashboard.css'
+import DashboardHeader from '../components/DashboardHeader'
 
 // Teacher-facing page. One page, three zones: header, classes (list +
 // create), and the selected class (add student + progress table). The
@@ -164,9 +165,7 @@ function TeacherDashboard() {
 
   return (
     <div className="teacher-page">
-      <h1>Teacher Dashboard</h1>
-      <p>Logged in as: {user?.email}</p>
-      <button onClick={handleLogout}>Log out</button>
+      <DashboardHeader title="Teacher Dashboard" />
 
       {/* Classes zone: pick an existing class or create a new one */}
       <div className="class-bar">

@@ -9,6 +9,7 @@ import BlocklyEditor from '../components/BlocklyEditor'
 import { runWorkspace } from '../game/runner'
 import { recordAttempt, fetchProgress } from '../services/progress'
 import '../css/StudentDashboard.css'
+import DashboardHeader from '../components/DashboardHeader'
 
 // Available quests, loaded once for the picker. Phase 4 will fetch these
 // from /api/quests instead of a static module.
@@ -202,10 +203,7 @@ function StudentDashboard() {
 
   return (
     <div className="student-page">
-      <h1>Student Dashboard</h1>
-      <p>Logged in as: {user?.email}</p>
-      <button onClick={handleLogout}>Log out</button>
-
+      <DashboardHeader title="Student Dashboard" />
       <p className="student-hint">
         Pick a quest, assemble blocks, then press Run. Arrow keys also move the knight
       </p>
