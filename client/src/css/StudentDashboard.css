@@ -1,17 +1,16 @@
 /* client/src/css/StudentDashboard.css
-   Styles for the student dashboard page. Moved out of inline style
-   props so the JSX stays readable; same convention as Login.css and
-   Register.css. Values are identical to the previous inline ones. */
+   Styles for the student dashboard page. Colors reference the central
+   theme tokens in theme.css so the page follows the active theme. */
 
 .student-page {
   padding: 2rem;
-  color: #fff;
-  background-color: #0f1320;
+  color: var(--text-body);
+  background-color: var(--bg-page);
   min-height: 100vh;
 }
 
 .student-hint {
-  color: #8a93a8;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-top: 1.5rem;
 }
@@ -26,16 +25,16 @@
 }
 
 .quest-label {
-  color: #c7cde0;
+  color: var(--text-body);
   font-size: 0.95rem;
 }
 
 .quest-select {
   padding: 0.5rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid #2a3147;
-  background: #0f1320;
-  color: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-body);
   font-size: 0.95rem;
   cursor: pointer;
 }
@@ -44,8 +43,8 @@
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   border: none;
-  background: #6abf69;
-  color: #0f1320;
+  background: var(--success);
+  color: var(--on-accent);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -54,9 +53,9 @@
 .reset-button {
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
-  border: 1px solid #2a3147;
-  background: transparent;
-  color: #c7cde0;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--text-body);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -72,15 +71,15 @@
 }
 
 .run-button:disabled {
-  background: #5a6b8a;
+  background: var(--border-strong);
 }
 
 .reset-button:disabled {
-  color: #5a6b8a;
+  color: var(--text-muted);
 }
 
 .run-error {
-  color: #ff8a8a;
+  color: var(--danger);
 }
 
 /* --- Workspace --- */
@@ -95,36 +94,37 @@
 .quest-banner {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: rgba(106, 191, 105, 0.15);
-  border: 1px solid #6abf69;
+  background: var(--success-soft-bg);
+  border: 1px solid var(--success);
   border-radius: 6px;
-  color: #6abf69;
+  color: var(--success-soft-text);
   font-weight: 600;
 }
 
 /* --- Hint --- */
 
-/* Discreet but noticeable: muted amber, lighter than the action buttons,
+/* Discreet but noticeable: gold, lighter than the action buttons,
    sits at the end of the toolbar without competing with Run. */
 .hint-button {
   padding: 0.45rem 0.9rem;
   border-radius: 6px;
-  border: 1px dashed #6b5a3a;
+  border: 1px dashed var(--gold);
   background: transparent;
-  color: #d8b878;
+  color: var(--gold-soft-text);
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .hint-button:hover {
-  border-color: #d8b878;
+  border-color: var(--gold);
+  background: var(--gold-soft-bg);
 }
 
 .hint-box {
   margin-top: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgba(216, 184, 120, 0.1);
-  border: 1px solid #6b5a3a;
+  background: var(--gold-soft-bg);
+  border: 1px solid var(--gold);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -133,13 +133,13 @@
 }
 
 .hint-text {
-  color: #e0cda0;
+  color: var(--gold-soft-text);
   font-style: italic;
   font-size: 0.95rem;
 }
 
 .hint-used {
-  color: #8a93a8;
+  color: var(--text-muted);
   font-size: 0.8rem;
   white-space: nowrap;
   margin-left: auto;

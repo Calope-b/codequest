@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import './css/theme.css'
 
 // Entry point of the React application.
 // BrowserRouter enables routing hooks across the app.
