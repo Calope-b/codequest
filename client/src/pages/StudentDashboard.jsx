@@ -204,62 +204,76 @@ function StudentDashboard() {
   return (
     <div className="student-page">
       <DashboardHeader title="Student Dashboard" />
-      <p className="student-hint">
-        Pick a quest, assemble blocks, then press Run. Arrow keys also move the knight
-      </p>
 
-      {/* Toolbar: quest picker, Run, Reset, error line */}
-      <div className="student-toolbar">
-        <label className="quest-label">
-          Quest:{' '}
-          <select
-            className="quest-select"
-            value={questId}
-            onChange={(e) => setQuestId(e.target.value)}
-            disabled={running}
-          >
-            {AVAILABLE_QUESTS.map((q) => (
-              <option key={q.id} value={q.id}>
-                {completedQuests.has(q.id) ? `✓ ${q.title}` : q.title}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="card">
+        <p className="card-title">Quest</p>
+        <p className="student-hint">
+          Pick a quest, assemble blocks, then press Run. Arrow keys also move the knight
+        </p>
 
-        <button className="run-button" onClick={handleRun} disabled={running}>
-          {running ? 'Running...' : '▶ Run'}
-        </button>
+        {/* Toolbar: quest picker, Run, Reset, error line */}
+        <div className="student-toolbar">
+          <label className="quest-label">
+            Quest:{' '}
+            <select
+              className="quest-select"
+              value={questId}
+              onChange={(e) => setQuestId(e.target.value)}
+              disabled={running}
+            >
+              {AVAILABLE_QUESTS.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {completedQuests.has(q.id) ? `✓ ${q.title}` : q.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <button className="reset-button" onClick={handleReset} disabled={running}>
-          ↺ Reset
-        </button>
-
-        {currentHint && !hintRevealed && (
-          <button className="hint-button" onClick={() => setHintRevealed(true)}>
-            💡 Indice ?
+          <button className="run-button" onClick={handleRun} disabled={running}>
+            {running ? 'Running...' : '▶ Run'}
           </button>
-        )}
 
-        {runError && <span className="run-error">{runError}</span>}
+          <button className="reset-button" onClick={handleReset} disabled={running}>
+            ↺ Reset
+          </button>
+
+          {currentHint && !hintRevealed && (
+            <button className="hint-button" onClick={() => setHintRevealed(true)}>
+              💡 Indice ?
+            </button>
+          )}
+
+          {runError && <span className="run-error">{runError}</span>}
+        </div>
+
+        {/* Revealed hint, shown under the toolbar once the student asks for it */}
+        {currentHint && hintRevealed && (
+          <div className="hint-box">
+            <span className="hint-text">{currentHint}</span>
+            <span className="hint-used">indice utilisé</span>
+          </div>
+        )}
       </div>
 
-      {/* Revealed hint, shown under the toolbar once the student asks for it */}
-      {currentHint && hintRevealed && (
-        <div className="hint-box">
-          <span className="hint-text">{currentHint}</span>
-          <span className="hint-used">indice utilisé</span>
-        </div>
-      )}
+      <div className="card">
+        <p className="card-title">Workspace</p>
+        {/* Workspace: Blockly on the left, game canvas on the right */}
+        {/* Workspace: Blockly on the left, game canvas on the right */}
+        {/* Workspace: Blockly on the left, game canvas on the right */}
+        {/* Workspace: Blockly on the left, game canvas on the right */}
+        <div className="workspace-row">
+          <div className="workspace-pane-blocks">
+            <p className="workspace-pane-title">Blocs</p>
+            <BlocklyEditor onWorkspaceReady={(ws) => { workspaceRef.current = ws }} />
+          </div>
 
-      {/* Workspace: Blockly on the left, game canvas on the right */}
-      <div className="workspace-row">
-        <BlocklyEditor onWorkspaceReady={(ws) => { workspaceRef.current = ws }} />
-
-        <div>
-          <div ref={gameContainerRef} />
-          {questComplete && (
-            <div className="quest-banner">Quest complete!</div>
-          )}
+          <div className="workspace-pane-game">
+            <p className="workspace-pane-title">Game</p>
+            <div ref={gameContainerRef} />
+            {questComplete && (
+              <div className="quest-banner">Quest complete!</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

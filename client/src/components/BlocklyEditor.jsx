@@ -43,7 +43,7 @@ function BlocklyEditor({ onWorkspaceReady }) {
   return (
     <div
       ref={blocklyDivRef}
-      style={{ width: 480, height: 480, border: '1px solid #2a3147' }}
+      style={{ width: '100%', height: 480, border: '1px solid var(--border)' }}
     />
   )
 }

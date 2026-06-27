@@ -167,44 +167,47 @@ function TeacherDashboard() {
     <div className="teacher-page">
       <DashboardHeader title="Teacher Dashboard" />
 
-      {/* Classes zone: pick an existing class or create a new one */}
-      <div className="class-bar">
-        <label className="muted">
-          Class:{' '}
-          <select
-            className="class-select"
-            value={selectedId ?? ''}
-            onChange={(e) =>
-              setSelectedId(e.target.value === '' ? null : Number(e.target.value))
-            }
-          >
-            <option value="">— select a class —</option>
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.student_count})
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="card">
+        <p className="card-title">Classes</p>
+        {/* Classes zone: pick an existing class or create a new one */}
+        <div className="class-bar">
+          <label className="muted">
+            Class:{' '}
+            <select
+              className="class-select"
+              value={selectedId ?? ''}
+              onChange={(e) =>
+                setSelectedId(e.target.value === '' ? null : Number(e.target.value))
+              }
+            >
+              <option value="">— select a class —</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.student_count})
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <input
-          className="text-input"
-          type="text"
-          placeholder="New class name"
-          value={newClassName}
-          onChange={(e) => setNewClassName(e.target.value)}
-        />
-        <button className="btn" onClick={handleCreateClass}>
-          Create class
-        </button>
+          <input
+            className="text-input"
+            type="text"
+            placeholder="New class name"
+            value={newClassName}
+            onChange={(e) => setNewClassName(e.target.value)}
+          />
+          <button className="btn" onClick={handleCreateClass}>
+            Create class
+          </button>
 
-        {classError && <span className="form-error">{classError}</span>}
+          {classError && <span className="form-error">{classError}</span>}
+        </div>
       </div>
 
       {/* Selected class zone: add a student + the progress table */}
       {selectedClass && (
-        <>
-          <h2 style={{ marginTop: '2rem' }}>{selectedClass.name}</h2>
+        <div className="card">
+          <p className="card-title">{selectedClass.name}</p>
 
           <div className="class-bar">
             <input
@@ -228,7 +231,7 @@ function TeacherDashboard() {
               onRemoveStudent={handleRemoveStudent}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   )
