@@ -84,11 +84,48 @@
 
 /* --- Workspace --- */
 
+/* --- Workspace --- */
+
+/* Blockly (left) stretches to fill the available space; the game canvas
+   (right) keeps its native 576x384 size to stay crisp, centered in its
+   pane. flex-wrap drops the game below on narrow screens. */
 .workspace-row {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  align-items: flex-start;
+  margin-top: 0.5rem;
+}
+
+/* Blockly pane grows to absorb leftover width (flex: 1), with a sane
+   minimum so it never gets too narrow before wrapping. */
+.workspace-pane-blocks {
+  flex: 1;
+  min-width: 420px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+/* Game pane sizes to its content and centers the canvas inside it. */
+.workspace-pane-game {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.workspace-pane-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  align-self: flex-start;
 }
 
 .quest-banner {

@@ -88,61 +88,64 @@ function AdminDashboard() {
       {loading && <p className="muted">Loading…</p>}
 
       {!loading && (
-        <div className="users-wrap">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Registered</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => {
-                const isSelf = u.id === user?.id
-                const isAdmin = u.role === 'admin'
-                return (
-                  <tr key={u.id}>
-                    <td>
-                      {u.email}{' '}
-                      {isSelf && <span className="you-tag">(you)</span>}
-                    </td>
-                    <td>
-                      {/* An existing admin's role is not editable here
-                          (the API won't assign admin), and you can't
-                          change your own. Both show a plain label. */}
-                      {isAdmin || isSelf ? (
-                        <span className="role-label">{u.role}</span>
-                      ) : (
-                        <select
-                          className="role-select"
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
+        <div className="card">
+          <p className="card-title">Users</p>
+          <div className="users-wrap">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Registered</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => {
+                  const isSelf = u.id === user?.id
+                  const isAdmin = u.role === 'admin'
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        {u.email}{' '}
+                        {isSelf && <span className="you-tag">(you)</span>}
+                      </td>
+                      <td>
+                        {/* An existing admin's role is not editable here
+                            (the API won't assign admin), and you can't
+                            change your own. Both show a plain label. */}
+                        {isAdmin || isSelf ? (
+                          <span className="role-label">{u.role}</span>
+                        ) : (
+                          <select
+                            className="role-select"
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          >
+                            {ASSIGNABLE_ROLES.map((r) => (
+                              <option key={r} value={r}>
+                                {r}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </td>
+                      <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          className="btn-danger"
+                          onClick={() => handleDelete(u.id, u.email)}
+                          disabled={isSelf}
                         >
-                          {ASSIGNABLE_ROLES.map((r) => (
-                            <option key={r} value={r}>
-                              {r}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </td>
-                    <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                    <td>
-                      <button
-                        className="btn-danger"
-                        onClick={() => handleDelete(u.id, u.email)}
-                        disabled={isSelf}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

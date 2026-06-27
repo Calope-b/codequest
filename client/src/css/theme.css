@@ -45,3 +45,24 @@
   --danger-soft-text: #a32d2d;
   --danger-border: #e0b4b4;
 }
+
+/* --- Shared layout helpers: cards and section titles --- */
+
+/* A white framed content block. Used to group a functional zone
+   (a toolbar, a form, a table) under one surface. */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Small heading sitting at the top of a card. */
+.card-title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  letter-spacing: 0.01em;
+}
