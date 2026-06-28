@@ -25,6 +25,7 @@ A web platform where French high school students learn programming by playing a 
     - [Test isolation](#test-isolation)
     - [CI](#ci)
   - [Usage](#usage)
+  - [API endpoints](#api-endpoints)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [License](#license)
@@ -34,9 +35,9 @@ A web platform where French high school students learn programming by playing a 
 
 ## What is this?
 
-Students play a knight in a pixel art world. They fight bosses, complete quests, and progress through the game, except everything is controlled through code. At the start, they use a block-based editor (like Scratch) where they drag pre-made blocks like "move forward 1 meter" and chain them together. As they progress, the blocks gradually give way to real programming. The end goal: students write their own code to control the knight's movements and actions.
+Students play a knight in a pixel art world. They fight bosses, complete quests, and progress through the game except everything is controlled through code. At the start, they use a block-based editor (like Scratch) where they drag pre-made blocks like "move forward 1 meter" and chain them together. As they advance, the blocks gradually give way to real programming. The end goal: students write their own code to control the knight's movements and actions.
 
-The platform covers Python, HTML/CSS, JavaScript, and SQL, the four languages in the NSI program. The target audience is beginners who have never written a line of code, so the whole thing has to start simple and build up from there.
+The platform covers Python, HTML/CSS, JavaScript, and SQL the four languages in the NSI program. The target audience is students who have never written a line of code, so it has to start simple and build up from there.
 
 ---
 
@@ -46,11 +47,11 @@ Three separate interfaces.
 
 **Students** see the game itself: a pixel art world with a knight, quests tied to programming challenges, and a drag-and-drop block editor powered by Google Blockly. Students can also create and save their own custom blocks. Progression is tracked with XP and levels.
 
-**Teachers** get a dashboard to monitor their class. Who completed what, success rates, that kind of thing.
+**Teachers** get a dashboard to monitor their class: who completed what, success rates, that kind of thing.
 
 **Admins** can manage users, assign roles, and change platform settings.
 
-Authentication uses JWT tokens, and passwords are hashed with bcrypt. The three roles (student, teacher, admin) each land on a different interface after login. All inputs are validated server-side against type, length, format, and a role whitelist. The backend has 97 automated tests running on every push (see the [Tests](#tests) section).
+Authentication uses JWT tokens, and passwords are hashed with bcrypt. The three roles (student, teacher, admin) each land on a different interface after login. All inputs are validated server-side against type, length, format, and a role whitelist. The backend has 127 automated tests running on every push (see the [Tests](#tests) section).
 
 ---
 
@@ -66,19 +67,19 @@ Authentication uses JWT tokens, and passwords are hashed with bcrypt. The three 
 
 **Why these specifically?**
 
-I picked React because it's component-based, has a huge community, and finding help when stuck is easy.
+React because it's component-based and has a big enough community that help is easy to find.
 
-Phaser.js is a 2D game framework that runs in the browser. No plugins, no installs, just JavaScript. Good fit for pixel art.
+Phaser.js is a 2D game framework that runs in the browser with no plugins or installs. It handles pixel art well and stays out of the way.
 
-Google Blockly is the same library that powers Scratch's block editor, so it's already proven on millions of kids.
+Google Blockly is the same library behind Scratch's block editor. It has good documentation and handles custom blocks cleanly, which matters here since students can define their own.
 
-Express.js is a minimal Node.js framework for REST APIs. Does the job without overcomplicating things.
+Express.js is minimal and doesn't force any structure on the project. That felt right for a REST API of this size.
 
-PostgreSQL is the obvious pick here: users, quests, progression, scores, it's all structured data, so SQL makes sense.
+PostgreSQL because everything here users, quests, progression, scores is relational. There was no case for anything else.
 
-Jest and Supertest are the standard pair for testing Express APIs. Real HTTP calls hitting a real Postgres, no mocking gymnastics.
+Jest and Supertest are the standard pair for testing Express APIs. Tests make real HTTP calls against a real Postgres database, no mocking.
 
-Docker keeps the project running the same way on every machine, regardless of OS or local setup.
+Docker runs PostgreSQL so the database setup is the same on every machine. The server and client run on the host containerizing them added nothing for a project deployed to Vercel and Render.
 
 ---
 
@@ -91,50 +92,67 @@ codequest/
 │   └── workflows/
 │       └── ci.yml              → CI: Postgres sidecar + npm test on every push
 │
-├── client/                     → React frontend
-│   ├── public/                 → Static files (favicon, etc.)
+├── client/                     → React frontend (Vite)
 │   ├── index.html              → Vite entry
+│   ├── public/
+│   │   └── sprites/            → Kenney CC0 tiles (knight, goblins, floor/, wall/, goal)
 │   └── src/
-│       ├── assets/             → Sprites, sounds, images (Phase 3)
-│       ├── components/         → Reusable UI pieces
-│       │   ├── common/         → Shared (buttons, modals...)
-│       │   ├── student/        → Student-only components
-│       │   ├── teacher/        → Teacher-only components
-│       │   └── admin/          → Admin-only components
-│       ├── pages/              → Login, Register, dashboards
-│       ├── game/               → Phaser.js game logic (Phase 3)
-│       │   ├── scenes/         → Game scenes (map, battle, quest...)
-│       │   └── entities/       → Game objects (knight, bosses, NPCs...)
-│       ├── blockly/            → Block editor config (Phase 3)
-│       │   ├── blocks/         → Custom block definitions
-│       │   └── generators/     → Code generators for blocks
-│       ├── services/           → API calls (services/api.js)
-│       ├── context/            → React context (AuthContext)
-│       └── utils/              → Helper functions
+│       ├── App.jsx             → Routes and role-based redirects
+│       ├── index.jsx           → React entry
+│       ├── pages/              → Login, Register, NotFound, and the three dashboards
+│       ├── components/         → BlocklyEditor, ClassProgressTable, DashboardHeader, ProtectedRoute
+│       ├── context/            → AuthContext
+│       ├── services/           → API wrappers (api, progress, teachers, admin)
+│       ├── css/                → Page and theme stylesheets (theme.css + per-page)
+│       ├── game/               → Phaser game logic
+│       │   ├── config.js       → Phaser config, grid/tile constants
+│       │   ├── scenes/
+│       │   │   └── QuestScene.js   → Draws the map, spawns the knight
+│       │   ├── KnightController.js      → Public API for generated code
+│       │   ├── KnightController.test.js → Unit tests (no Phaser boot)
+│       │   ├── questLoader.js   → Loads/lists the quest JSON
+│       │   ├── runner.js        → AsyncFunction execution wrapper
+│       │   └── sound.js         → Sound effects
+│       ├── blockly/            → Block editor config
+│       │   ├── toolbox.js      → Toolbox, filtered per-quest
+│       │   ├── blocks/         → movement.js, sensors.js
+│       │   └── generators/     → movement.js, sensors.js
+│       └── quests/             → quest_001.json … quest_005.json
 │
 ├── server/                     → Express.js backend
 │   ├── scripts/
 │   │   └── seed-admin.js       → CLI: create an admin account
 │   ├── src/
-│   │   ├── config/             → Database connection
-│   │   ├── routes/             → API routes
-│   │   ├── controllers/        → Request handlers
+│   │   ├── config/             → db.js (pg pool)
+│   │   ├── routes/             → auth, students, teachers, admin
+│   │   ├── controllers/        → auth, account, student, teacher, admin
 │   │   ├── middlewares/        → verifyToken, requireRole
-│   │   ├── models/             → Database models
-│   │   └── utils/              → Helper functions (JWT signing, etc.)
+│   │   ├── models/             → User, Class, Attempt
+│   │   └── utils/              → jwt.js (sign/verify)
 │   └── tests/
 │       ├── helpers/            → Shared test utilities (DB truncate, pool)
 │       ├── setup.js            → Jest bootstrap, loads .env.test
-│       ├── sanity.test.js      → Harness sanity checks
-│       ├── register.test.js    → POST /api/auth/register (25 cases)
-│       ├── login.test.js       → POST /api/auth/login (11 cases)
-│       ├── middlewares.test.js → verifyToken + requireRole (11 cases)
-│       └── me.test.js          → GET /api/auth/me (5 cases)
+│       ├── sanity.test.js      → Harness sanity checks (3)
+│       ├── register.test.js    → POST /api/auth/register (25)
+│       ├── login.test.js       → POST /api/auth/login (11)
+│       ├── middlewares.test.js → verifyToken + requireRole (11)
+│       ├── me.test.js          → GET /api/auth/me (5)
+│       ├── account.test.js     → PATCH /api/auth/email + /password (12)
+│       ├── students.test.js    → student progress (9)
+│       ├── teacher-classes.test.js  → class create/list (10)
+│       ├── teacher-members.test.js  → add/remove students (14)
+│       ├── teacher-progress.test.js → class progress (9)
+│       └── admin.test.js       → user management (18)
 │
 ├── database/
-│   └── schema.sql              → Database schema (tables, constraints)
+│   └── schema.sql              → Database schema (4 tables, constraints, indexes)
+│
+├── photo/                      → UML exports (usecase.png, classdiagram.png)
 │
 ├── AUTH_DESIGN.md              → Authentication design with sequence diagrams
+├── GAME_DESIGN.md              → Game runtime, KnightController, quest format
+├── TEACHER_DESIGN.md           → Teacher backend design and test plan
+├── ADMIN_DESIGN.md             → Admin backend design and test plan
 ├── PRIORITIZATION.md           → MoSCoW prioritization of MVP features
 ├── REQUIREMENTS.md             → Functional and non-functional requirements
 ├── TEST_PLAN.md                → Test case design for the auth module
@@ -145,7 +163,7 @@ codequest/
 └── README.md
 ```
 
-Folders tagged "Phase 3" are empty for now. They'll be filled in once the game core and Blockly integration are written.
+The Phase 3 game folders (`game/`, `blockly/`, `quests/`) and the Phase 4 backend routes (`teachers`, `admin`) are now filled in. The remaining work is the React teacher and admin dashboards.
 
 ---
 
@@ -178,9 +196,9 @@ cp .env.example .env
 docker compose up -d db
 ```
 
-Docker only runs PostgreSQL here. The server and the client run directly on the host: containerizing them added nothing for a project deployed to Vercel and Render, so the compose file stays db-only.
+Docker only runs PostgreSQL here. The server and the client run directly on the host containerizing them added nothing for a project deployed to Vercel and Render, so the compose file stays db-only.
 
-4. Apply the schema (first run only), then start the backend and the frontend, each in its own terminal:
+1. Apply the schema (first run only), then start the backend and the frontend, each in its own terminal:
 
 ```bash
 docker compose exec -T db psql -U postgres -d codequest < database/schema.sql
@@ -196,7 +214,7 @@ npm install
 npm run dev
 ```
 
-5. Create an admin account if you need one. Registration only allows the student and teacher roles, so admins are seeded from the command line:
+5. Create an admin account if you need one. Registration only allows the student and teacher roles, so admins are created from the command line:
 
 ```bash
 cd server
@@ -207,7 +225,7 @@ npm run seed:admin -- admin@codequest.dev pick-a-password
 
 ## Environment variables
 
-The values in `.env.example` are placeholders. Copy the file to `.env` and replace them with your real values before running anything.
+The values in `.env.example` are placeholders. Copy the file to `.env` and replace them with real values before running anything.
 
 | Variable | What it does | Example |
 |---|---|---|
@@ -228,7 +246,7 @@ Both `.env` and `.env.test` are gitignored. Never commit them.
 
 ## Tests
 
-The backend has 97 automated tests written with Jest and Supertest, covering the cases listed in `TEST_PLAN.md` and `TEACHER_DESIGN.md` plus 3 sanity checks for the harness itself. Every test makes a real HTTP call against an Express app and hits a real Postgres database.
+The backend has 127 automated tests written with Jest and Supertest, covering the cases listed in `TEST_PLAN.md`, `TEACHER_DESIGN.md`, and `ADMIN_DESIGN.md`, plus the account self-service cases and 3 sanity checks for the harness itself. Every test makes a real HTTP call against an Express app and hits a real Postgres database.
 
 Breakdown by module:
 
@@ -238,11 +256,14 @@ Breakdown by module:
 | `login.test.js` | `POST /api/auth/login` | 11 |
 | `middlewares.test.js` | `verifyToken` and `requireRole` | 11 |
 | `me.test.js` | `GET /api/auth/me` | 5 |
+| `account.test.js` | `PATCH /api/auth/email` and `/password` | 12 |
 | `students.test.js` | student progress endpoints | 9 |
 | `teacher-classes.test.js` | teacher class create/list | 10 |
 | `teacher-members.test.js` | add/remove students in a class | 14 |
 | `teacher-progress.test.js` | class progress aggregation | 9 |
+| `admin.test.js` | user management (list/role/delete) | 18 |
 | `sanity.test.js` | test harness itself | 3 |
+| **Total** | | **127** |
 
 ### Running the tests locally
 
@@ -281,7 +302,7 @@ npm test
 
 ### Test isolation
 
-The bootstrap in `tests/setup.js` refuses to run unless `DB_NAME` is `codequest_test`, so a misconfigured environment can't wipe the dev data. Each test starts with a truncated `users` table, which keeps cases independent.
+The bootstrap in `tests/setup.js` refuses to run unless `DB_NAME` is `codequest_test`, so a misconfigured environment can't wipe the dev data. Each test starts with a truncated `users` table to keep cases independent.
 
 ### CI
 
@@ -298,17 +319,45 @@ Once running:
 | `http://localhost:5173` | The app (React + Vite) |
 | `http://localhost:5000` | The API |
 | `http://localhost:5000/api/health` | Health check (returns `{status: "ok"}`) |
-| `http://localhost:5000/api/auth` | Auth endpoints (register, login, me) |
+| `http://localhost:5000/api/auth` | Auth endpoints (register, login, me, account self-service) |
+| `http://localhost:5000/api/students` | Student progress (student role) |
+| `http://localhost:5000/api/teachers` | Class management and progress (teacher role) |
+| `http://localhost:5000/api/admin` | User management (admin role) |
+
+## API endpoints
+
+Every protected route runs `verifyToken`; role-restricted groups also run `requireRole(...)`.
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/health` | Public | Liveness check |
+| POST | `/api/auth/register` | Public | Create a student or teacher account |
+| POST | `/api/auth/login` | Public | Authenticate, return a JWT |
+| GET | `/api/auth/me` | Bearer | Current user, for session restore |
+| PATCH | `/api/auth/email` | Bearer | Change own email (re-checks password) |
+| PATCH | `/api/auth/password` | Bearer | Change own password (re-checks password) |
+| POST | `/api/students/progress` | student | Record one quest attempt |
+| GET | `/api/students/progress` | student | Own progress summary, one row per quest |
+| POST | `/api/teachers/classes` | teacher | Create a class |
+| GET | `/api/teachers/classes` | teacher | List own classes with student counts |
+| POST | `/api/teachers/classes/:id/students` | teacher | Add a student by email |
+| DELETE | `/api/teachers/classes/:id/students/:studentId` | teacher | Remove a student from a class |
+| GET | `/api/teachers/classes/:id/progress` | teacher | Aggregated class progress |
+| GET | `/api/admin/users` | admin | List every account |
+| PATCH | `/api/admin/users/:id/role` | admin | Change a user's role (student/teacher) |
+| DELETE | `/api/admin/users/:id` | admin | Delete an account |
+
+See `AUTH_DESIGN.md`, `TEACHER_DESIGN.md`, and `ADMIN_DESIGN.md` for per-module contracts, error tables, and sequence diagrams.
 
 ---
 
 ## Roadmap
 
-- **Phase 1, Foundations**: project structure, schema, scaffolding. ✓
-- **Phase 2, Authentication**: JWT backend, bcrypt, role-based access, hardening, auth test suite, CI, plus the React frontend (AuthContext, role-based routing). ✓
-- **Phase 3, Game core**: Phaser scenes, knight entity, first quest, Blockly integration. (in progress)
-- **Phase 4, Teacher dashboard and admin panel**: class management, progress tracking, user CRUD.
-- **Phase 5, Content seeding, QA, and deployment** to Vercel + Render.
+- **Phase 1 — Foundations**: project structure, schema, scaffolding. ✓
+- **Phase 2 — Authentication**: JWT backend, bcrypt, role-based access, auth test suite, CI, React frontend with AuthContext and role-based routing. ✓
+- **Phase 3 — Game core**: Phaser scenes, knight entity, five quests, Blockly integration, combat against static enemies, progress saved on every run. ✓
+- **Phase 4 — Teacher dashboard and admin panel**: class management, progress tracking, user CRUD. Backend routes done and tested; React dashboards in progress.✓
+- **Phase 5 — Content, QA, and deployment** to Vercel + Render.
 
 See `PRIORITIZATION.md` for the full MoSCoW breakdown and `REQUIREMENTS.md` for the functional and non-functional requirements.
 
@@ -316,7 +365,7 @@ See `PRIORITIZATION.md` for the full MoSCoW breakdown and `REQUIREMENTS.md` for 
 
 ## Contributing
 
-This is a school project. Not open to outside contributions for now.
+This is a school project and not open to outside contributions for now.
 
 ---
 
@@ -328,4 +377,4 @@ MIT
 
 ## Author
 
-Maxime, Bachelor's project
+Maxime Bucher--Martin, Bachelor's project
