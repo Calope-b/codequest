@@ -20,39 +20,39 @@
 
 ## 1. Introduction
 
-This document covers the requirements analysis and UML modelling for **CodeQuest**, a web platform that teaches programming to French high school students in the NSI (*Numérique et Sciences Informatiques*) curriculum. The platform is a pixel art MMORPG-like world where students play a knight character, fight bosses, and solve quests through a visual block-based editor built on Google Blockly.
+This document covers the requirements analysis and UML modelling for **CodeQuest**, a web platform that teaches programming to French high school students in the NSI (*Numérique et Sciences Informatiques*) curriculum. Students play a knight in a pixel art world, fight bosses, and solve quests through a visual block-based editor built on Google Blockly.
 
-It has two goals. The first is to identify the actors who interact with the system and lay out the functional and non-functional requirements the platform must meet. The second is to give a high-level UML view through a use case diagram and a class diagram, which together drive the implementation phase.
+The document identifies the actors who interact with the system, lists the functional and non-functional requirements the platform must meet, and provides a high-level UML view through a use case diagram and a class diagram. Both models feed directly into the implementation phase.
 
-The scope reflects the project as it stands in April 2026. Some requirements and model elements will likely change as development progresses and new use cases come up.
+The scope reflects the project as of April 2026. Some requirements and model elements will evolve as development progresses.
 
 ---
 
 ## 2. System Actors
 
-Four actors interact with CodeQuest. Each one has a dedicated interface adapted to their role.
+Four actors interact with CodeQuest, each with a dedicated interface.
 
 ### 2.1 Guest
 
-An unauthenticated visitor on their first contact with the platform. A Guest can register an account or log in with existing credentials, but cannot access any protected feature until authenticated. Once logged in, they become one of the three roles below.
+An unauthenticated visitor. A Guest can register an account or log in with existing credentials, but cannot access any protected feature until authenticated. Once logged in, they become one of the three roles below.
 
 ### 2.2 Student
 
-The main user of the platform. A Student is typically a high school student with no prior programming background. They interact with the platform through the game: exploring the world, fighting bosses, solving quests in the visual block editor, and progressively learning the languages covered by the NSI curriculum (Python, HTML, CSS, JavaScript, SQL). Their progression is tracked through XP, levels, and completed quests.
+The main user of the platform. A Student is typically a high school student with no prior programming background. They interact through the game: exploring the world, fighting bosses, solving quests in the visual block editor, and progressively learning the languages covered by the NSI curriculum (Python, HTML, CSS, JavaScript, SQL). Progression is tracked through XP, levels, and completed quests.
 
 ### 2.3 Teacher
 
-The NSI teacher in charge of one or several classes. A Teacher manages their students, assigns specific quests with due dates, and monitors progress at both the individual and class level. The Teacher interface centers on a dashboard showing completion rates, scores, and attempts, so the teacher can quickly spot students who are stuck or those who are ahead.
+The NSI teacher in charge of one or several classes. A Teacher manages their students, assigns quests with due dates, and monitors progress at the individual and class level. Their interface centers on a dashboard showing completion rates, scores, and attempts enough to spot at a glance who is stuck and who is ahead.
 
 ### 2.4 Admin
 
-The platform administrator in charge of content and of the user base. An Admin has full access: managing users (create, edit, delete), curating quest and boss content, and consulting global usage statistics. Admin access is gated by role-based access control on every protected backend endpoint.
+The platform administrator. An Admin has full access: managing users (create, edit, delete), curating quest and boss content, and consulting global usage statistics. Every protected backend endpoint is gated by role-based access control.
 
 ---
 
 ## 3. Functional Requirements
 
-Functional requirements describe what the system must do. They are grouped below by subsystem.
+Functional requirements describe what the system must do, grouped by subsystem.
 
 ### 3.1 Authentication and User Management
 
@@ -70,15 +70,15 @@ Functional requirements describe what the system must do. They are grouped below
 - **FR-S4 — Execute code:** A Student shall be able to run their assembled blocks; the system shall execute the corresponding code and return the result.
 - **FR-S5 — Validate quest completion:** The system shall validate the Student's submission against the quest's expected outcome and mark the quest as completed or failed accordingly.
 - **FR-S6 — Record attempts:** The system shall record every quest attempt, its score, and its completion status.
-- **FR-S7 — Create custom blocks:** A Student shall be able to compose their own reusable blocks from existing ones, and save them for later use.
+- **FR-S7 — Create custom blocks:** A Student shall be able to compose their own reusable blocks from existing ones and save them for later use.
 - **FR-S8 — Track progression:** A Student shall be able to consult their XP, level, and completed quests on their profile.
-- **FR-S9 — View assigned quests:** A Student shall be able to view the list of quests assigned by their teacher, along with their due dates.
+- **FR-S9 — View assigned quests:** A Student shall be able to view the list of quests assigned by their teacher, along with due dates.
 
 ### 3.3 Teacher — Classroom Management and Monitoring
 
 - **FR-T1 — Manage classes:** A Teacher shall be able to create, edit, and delete the classes they own.
 - **FR-T2 — Manage students in a class:** A Teacher shall be able to add and remove students from their own classes.
-- **FR-T3 — Assign quests:** A Teacher shall be able to assign one or several quests to a class, optionally specifying a due date.
+- **FR-T3 — Assign quests:** A Teacher shall be able to assign one or several quests to a class, optionally with a due date.
 - **FR-T4 — Monitor individual progress:** A Teacher shall be able to consult any student's progression (XP, level, quests completed, scores, attempts).
 - **FR-T5 — View class analytics:** A Teacher shall be able to view class-wide statistics (completion rates, average scores, active students).
 
@@ -93,7 +93,7 @@ Functional requirements describe what the system must do. They are grouped below
 
 ## 4. Non-Functional Requirements
 
-Non-functional requirements describe how the system should behave. They cover quality attributes beyond the raw feature list.
+Non-functional requirements describe how the system should behave quality attributes beyond the raw feature list.
 
 | Category | ID | Requirement |
 |---|---|---|
@@ -115,16 +115,16 @@ Non-functional requirements describe how the system should behave. They cover qu
 | Maintainability | NFR-M3 | The project shall include a CI pipeline (GitHub Actions) running tests and builds on every pull request. |
 | Maintainability | NFR-M4 | Every public API endpoint shall be documented in the README. |
 | Portability | NFR-PO1 | The web client shall run correctly on recent versions of Chrome, Firefox, Safari, and Edge. |
-| Portability | NFR-PO2 | The whole stack shall be containerized with Docker to allow a single-command local setup (`docker-compose up`). |
+| Portability | NFR-PO2 | PostgreSQL shall run in Docker so the local database starts with a single command (`docker compose up -d db`). The client and server run on the host, since production deploys to Vercel (front) and Render (back), which build and containerize independently. |
 | Portability | NFR-PO3 | The production deployment shall target Vercel for the frontend and Render for the backend. |
 
 ---
 
 ## 5. Use Case Diagram
 
-The diagram below shows how the four actors interact with the CodeQuest system. Dashed arrows labelled `<<include>>` mean that one use case always involves another (for example, *Solve a Quest* always includes *Write Code with Blocks* and *Execute Code*).
+The diagram below shows how the four actors interact with the CodeQuest system. Dashed arrows labelled `<<include>>` mean that one use case always involves another for example, *Solve a Quest* always includes *Write Code with Blocks* and *Execute Code*.
 
-Mermaid does not natively support UML use case diagrams, so the flowchart below approximates one. Actors are shown as rectangles on the edges, use cases as stadium-shaped nodes inside the system boundary.
+Mermaid does not natively support UML use case diagrams, so the flowchart below approximates one. Actors appear as rectangles on the edges; use cases appear as stadium-shaped nodes inside the system boundary.
 
 ![alt text](photo/usecase.png)
 
@@ -132,7 +132,7 @@ Mermaid does not natively support UML use case diagrams, so the flowchart below 
 
 ## 6. Class Diagram
 
-The model is built around an abstract `User` class from which `Student`, `Teacher`, and `Admin` inherit. Each entity below corresponds to a table in the PostgreSQL schema, except `ClassStudent` and `Assignment` which materialize many-to-many relationships.
+The model is built around an abstract `User` class from which `Student`, `Teacher`, and `Admin` inherit. It is the target domain model for the platform. Four entities are already PostgreSQL tables: `users`, `classes`, `class_students`, and `attempts`. The rest `PlayerProfile`, `CustomBlock`, `Assignment`, `Boss`, `Quest`, `QuestProgress` belong to later phases and are not in the schema yet. `ClassStudent` maps to the `class_students` join table; `Assignment` would similarly materialize a many-to-many relationship rather than a first-class entity.
 
 ![alt text](photo/classdiagram.png)
 
@@ -141,14 +141,12 @@ The model is built around an abstract `User` class from which `Student`, `Teache
 - `User` is abstract; `Student`, `Teacher`, and `Admin` inherit from it.
 - A `Student` has exactly one `PlayerProfile` (composition) and may create multiple `CustomBlock`s.
 - A `Teacher` teaches zero or more `Class`es, and each `Class` enrolls zero or more `Student`s, materialized in the database by the `ClassStudent` join table.
-- An `Assignment` is the link between a `Class`, a `Quest`, and the `Teacher` who assigned it, with an optional due date.
+- An `Assignment` links a `Class`, a `Quest`, and the `Teacher` who assigned it, with an optional due date.
 - A `Boss` appears in zero or more `Quest`s; each `Quest` has exactly one `Boss`.
-- `QuestProgress` records the relationship between a `Student` and a `Quest`, including the current status (`not_started`, `in_progress`, `completed`, `failed`), the score, and the number of attempts.
+- `QuestProgress` records the relationship between a `Student` and a `Quest`. In the current schema, this role is filled by the append-only `attempts` table one row per attempt, holding the quest id, a `completed` boolean, and a `score` rather than a single mutable status row. The richer status enum (`not_started`, `in_progress`, `completed`, `failed`) is part of the target model and is not implemented yet.
 
 ---
 
 ## 7. Conclusion
 
-This document gives a structured view of what CodeQuest must do, how it should behave, and how its components fit together. The functional requirements cover the three main user journeys (student gameplay, teacher management, admin administration) on top of a shared authentication layer. The non-functional requirements set the quality bar the implementation has to meet, with particular attention to usability for beginners and security around student data.
-
-The UML diagrams match the existing project architecture: the class diagram mirrors the eight PostgreSQL tables already in place, and the use case diagram reflects the three interfaces (student, teacher, admin) the project is built around. Both models will be revisited as the implementation moves forward and edge cases come up.
+Three phases of work flow from this document: the authentication layer, the student game loop, and the teacher/admin management interfaces. The class diagram defines the domain model the implementation builds toward; the use case diagram maps which actor triggers which feature. Both will be updated as edge cases surface during development.
