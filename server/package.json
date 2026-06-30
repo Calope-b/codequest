@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "jest --runInBand --detectOpenHandles",
+    "bench:p2": "node scripts/bench-progress.js",
     "seed:admin": "node scripts/seed-admin.js"
   },
   "jest": {

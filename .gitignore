@@ -19,3 +19,8 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+
+# Benchmark outputs
+server/bench-results.json
+server/bench-progress.svg
